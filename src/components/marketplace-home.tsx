@@ -204,7 +204,7 @@ export function MarketplaceHome() {
               {cartCount > 0 && <span className="market-cart-count">{cartCount}</span>}
             </span>
             
-            <Link className="market-join-button" href="/signup"><UserRound aria-hidden="true" size={18} /><span>Sign In</span></Link>
+            <Link className="market-join-button" href="/login"><UserRound aria-hidden="true" size={18} /><span>Sign In</span></Link>
           </nav>
         </div>
       </header>

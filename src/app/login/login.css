@@ -1,7 +1,7 @@
 .login-page {
   --login-forest: #551A98;
   --login-leaf: #c9e69a;
-  background: #eeebf1;
+  background: #fff;
   color: #23332d;
   display: grid;
   flex: 1;
@@ -11,7 +11,7 @@
 }
 
 .login-panel {
-  background: #f8f7f1;
+  background: #fff;
   display: flex;
   flex-direction: column;
   min-height: calc(100svh - 28px);
@@ -203,6 +203,160 @@
   position: relative;
 }
 
+.signup-page .login-content h1 {
+  color: #141216;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: clamp(26px, 2.4vw, 34px);
+  font-weight: 700;
+  letter-spacing: -0.8px;
+  line-height: 1.15;
+  margin: 0 0 5px;
+  text-align: center;
+}
+
+.signup-page .login-eyebrow {
+  display: none;
+}
+
+.signup-page .login-description {
+  color: #17141a;
+  font-size: 15px;
+  margin: 0 0 24px;
+  text-align: center;
+}
+
+.signup-flow .auth-form {
+  gap: 14px;
+}
+
+.signup-selector {
+  display: grid;
+  gap: 20px;
+}
+
+.account-options {
+  border: 0;
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  min-width: 0;
+  padding: 0;
+}
+
+.account-option {
+  align-items: center;
+  background: #fff;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  cursor: pointer;
+  display: flex;
+  gap: 18px;
+  min-height: 79px;
+  padding: 8px 20px;
+  box-shadow: 0 4px 14px rgba(20, 18, 22, 0.12);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.account-option:hover {
+  border-color: #b7a0c9;
+}
+
+.account-option:has(input:focus-visible) {
+  outline: 3px solid #8e6ab0;
+  outline-offset: 3px;
+}
+
+.account-option input {
+  height: 1px;
+  opacity: 0;
+  position: absolute;
+  width: 1px;
+}
+
+.account-avatar {
+  align-items: center;
+  display: inline-flex;
+  flex: 0 0 47px;
+  height: 58px;
+  justify-content: center;
+}
+
+.account-avatar img {
+  height: 58px;
+  object-fit: contain;
+  width: 47px;
+}
+
+.account-option-copy {
+  display: grid;
+  flex: 1;
+  gap: 1px;
+}
+
+.account-option-title {
+  color: #111;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.account-option-description {
+  color: #161319;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.account-radio {
+  border: 2px solid #916eae;
+  border-radius: 50%;
+  flex: 0 0 34px;
+  height: 34px;
+  margin-left: auto;
+  position: relative;
+}
+
+.account-option.is-selected .account-radio::after {
+  background: #916eae;
+  border-radius: 50%;
+  content: "";
+  inset: 3px;
+  position: absolute;
+}
+
+.signup-page .auth-submit {
+  background: linear-gradient(105deg, #9472b2, #782497);
+  border: 0;
+  border-radius: 999px;
+  font-size: 18px;
+  font-weight: 700;
+  min-height: 62px;
+}
+
+.signup-page .auth-submit:hover {
+  background: linear-gradient(105deg, #8764a6, #6d2088);
+}
+
+.signup-back {
+  align-self: flex-start;
+  background: transparent;
+  border: 0;
+  color: #765497;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 650;
+  padding: 0;
+}
+
+.visually-hidden {
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
 .login-story::after {
   border: 1px solid rgba(220, 236, 208, 0.08);
   content: "";
@@ -308,6 +462,16 @@
     padding: 54px 0;
   }
 
+  .signup-page .login-content h1 {
+    font-size: clamp(19px, 5.4vw, 24px);
+    white-space: normal;
+  }
+
+  .signup-page .login-description {
+    font-size: 15px;
+    margin-bottom: 24px;
+  }
+
   .login-content h1 {
     font-size: clamp(32px, 7vw, 46px);
     white-space: nowrap;
@@ -320,6 +484,43 @@
 
   .login-page .auth-form {
     gap: 18px;
+  }
+
+  .signup-page .auth-form {
+    gap: 16px;
+  }
+
+  .account-options {
+    gap: 12px;
+  }
+
+  .account-option {
+    border-radius: 15px;
+    gap: 16px;
+    min-height: 83px;
+    padding: 8px 16px;
+  }
+
+  .account-option-title {
+    font-size: 18px;
+  }
+
+  .account-option-description {
+    font-size: 14px;
+  }
+
+  .account-radio {
+    flex-basis: 34px;
+    height: 34px;
+  }
+
+  .signup-selector {
+    gap: 24px;
+  }
+
+  .signup-page .auth-submit {
+    font-size: 18px;
+    min-height: 62px;
   }
 
   .login-page .field label,
@@ -345,6 +546,11 @@
   .login-page .auth-submit {
     font-size: 15px;
     min-height: 64px;
+  }
+
+  .signup-page .auth-submit {
+    font-size: 18px;
+    min-height: 62px;
   }
 
   .login-page .auth-switch {

@@ -51,9 +51,20 @@ export async function signUpAction(
   const email = readEmail(formData);
   const password = readPassword(formData);
   const confirmation = formData.get("confirmPassword");
+  const accountType = formData.get("accountType");
+  const validAccountTypes = [
+    "customer",
+    "business",
+    "service_provider",
+    "agent",
+    "storage",
+  ];
 
   if (!isValidEmail(email)) {
     return { error: "Enter a valid email address." };
+  }
+  if (typeof accountType !== "string" || !validAccountTypes.includes(accountType)) {
+    return { error: "Choose a valid account type." };
   }
   if (password.length < 8) {
     return { error: "Your password must be at least 8 characters." };
@@ -68,6 +79,7 @@ export async function signUpAction(
     password,
     options: {
       emailRedirectTo: new URL("/auth/callback", getSiteUrl()).toString(),
+      data: { account_type: accountType },
     },
   });
 

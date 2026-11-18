@@ -21,7 +21,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         </Link>
 
         <div className="login-content">
-          <span className="login-eyebrow">A PLACE TO BEGIN AGAIN</span>
+          {/* <span className="login-eyebrow">A PLACE TO BEGIN AGAIN</span> */}
           <h1 id="login-title">Welcome To SpaciMore</h1>
           <p className="login-description">Pick up where you left off.</p>
           {error === "callback" && (
@@ -39,18 +39,18 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       </section>
 
       <aside className="login-story" aria-label="preferred marketplace">
-        <span className="story-eyebrow">Preferred Marketplace</span>
+        <span className="story-eyebrow">Your Preferred Marketplace</span>
         <div className="story-copy">
           <h2>Buy, sell and grow<br />together.</h2>
-          <p>A little space to gather your thoughts and begin<br className="desktop-break" /> again, whenever you need.</p>
+          
         </div>
         <div className="story-art" aria-hidden="true">
           <span className="story-orbit story-orbit-one" />
           <span className="story-orbit story-orbit-two" />
-          <span className="story-leaf" />
+          {/* <span className="story-leaf" /> */}
         </div>
-        <span className="story-footer">TAKE IT AT YOUR PACE</span>
-        <span className="story-index">01 — 01</span>
+        {/* <span className="story-footer">TAKE IT AT YOUR PACE</span> */}
+        {/* <span className="story-index">01 — 01</span> */}
       </aside>
     </main>
   );
