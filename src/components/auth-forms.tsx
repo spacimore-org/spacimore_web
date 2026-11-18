@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useActionState, useState } from "react";
-import { ArrowRight, Eye, EyeOff, Mail } from "lucide-react";
+import { ArrowRight, ChevronRight, Eye, EyeOff } from "lucide-react";
 import {
   requestPasswordResetAction,
   signInAction,
@@ -58,10 +58,7 @@ export function SignInForm() {
     <form action={action} className="auth-form">
       <EmailField />
       <div className="field">
-        <div className="form-row">
-          <label htmlFor="password">Password</label>
-          <Link href="/forgot-password">Forgot password?</Link>
-        </div>
+        <label htmlFor="password">Password</label>
         <div className="login-password-wrap">
           <input
             id="password"
@@ -81,12 +78,12 @@ export function SignInForm() {
             {showPassword ? <EyeOff aria-hidden="true" size={17} /> : <Eye aria-hidden="true" size={17} />}
           </button>
         </div>
+        <Link className="forgot-password-link" href="/forgot-password">Forgot password?</Link>
       </div>
       <FormFeedback state={state} />
       <button className="button auth-submit" type="submit" disabled={pending}>
-        <Mail aria-hidden="true" size={15} />
-        {pending ? "Signing in..." : "Sign in"}
-        <ArrowRight aria-hidden="true" size={16} />
+        {pending ? "Signing in..." : "Continue"}
+        <ChevronRight aria-hidden="true" size={18} />
       </button>
     </form>
   );

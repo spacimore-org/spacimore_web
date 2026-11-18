@@ -13,7 +13,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const { error } = await searchParams;
 
   return (
-    <main className="login-page">
+    <main className="login-page sign-in-page">
       <section className="login-panel" aria-labelledby="login-title">
         <Link className="login-brand" href="/" aria-label="SpaciMore home">
           <span className="login-brand-mark"><Sprout aria-hidden="true" size={20} /></span>
@@ -22,7 +22,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
         <div className="login-content">
           {/* <span className="login-eyebrow">A PLACE TO BEGIN AGAIN</span> */}
-          <h1 id="login-title">Welcome To SpaciMore</h1>
+          <h1 id="login-title">Welcome Back</h1>
           <p className="login-description">Pick up where you left off.</p>
           {error === "callback" && (
             <p className="form-message form-message-error" role="alert">
