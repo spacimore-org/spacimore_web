@@ -6,6 +6,7 @@ import {
   ArrowRight,
   ArrowUpRight,
   BadgeCheck,
+  ChevronDown,
   ChevronRight,
   Flower2,
   Gift,
@@ -14,6 +15,7 @@ import {
   MapPin,
   PhoneCall,
   Search,
+  ShoppingCart,
   Sparkles,
   Star,
   Store,
@@ -184,7 +186,25 @@ export function MarketplaceHome() {
             >
               <Search aria-hidden="true" size={18} />
             </button>
-            <Link href="/login"><UserRound aria-hidden="true" size={18} /><span>My Account</span></Link>
+            <label className="market-location">
+              <MapPin aria-hidden="true" size={16} />
+              <select aria-label="Choose your location" defaultValue="">
+                <option disabled value="">Choose location</option>
+                <option value="lagos">Lagos</option>
+                <option value="abuja">Abuja</option>
+                <option value="port-harcourt">Port Harcourt</option>
+                <option value="ibadan">Ibadan</option>
+                <option value="kano">Kano</option>
+              </select>
+              <ChevronDown aria-hidden="true" size={14} />
+            </label>
+            <span className="market-cart" aria-label={`Cart, ${cartCount} items`}>
+              <ShoppingCart aria-hidden="true" size={18} />
+              <span>Cart</span>
+              {cartCount > 0 && <span className="market-cart-count">{cartCount}</span>}
+            </span>
+            
+            <Link className="market-join-button" href="/signup"><UserRound aria-hidden="true" size={18} /><span>Sign In</span></Link>
           </nav>
         </div>
       </header>
@@ -243,7 +263,7 @@ export function MarketplaceHome() {
             <span className="deal-tile-shop-icon"><Store aria-hidden="true" size={32} /></span>
             <span className="deal-tile-shop-copy">
               <strong>Book A Pro</strong>
-              <span className="deal-tile-shop-caption">Trusted Help Nearby</span>
+              <span className="deal-tile-shop-caption">Book Help Nearby</span>
             </span>
           </a>
           <a className="deal-tile deal-tile-shop" href="#popular">
@@ -256,8 +276,8 @@ export function MarketplaceHome() {
           <a className="deal-tile deal-tile-shop" href="#popular">
             <span className="deal-tile-shop-icon"><Store aria-hidden="true" size={32} /></span>
             <span className="deal-tile-shop-copy">
-              <strong>Sell</strong>
-              <span className="deal-tile-shop-caption">Grow Your Business</span>
+              <strong>Agents</strong>
+              <span className="deal-tile-shop-caption">Products and inspections</span>
             </span>
           </a>
          <a className="deal-tile deal-tile-shop" href="#popular">
@@ -265,6 +285,14 @@ export function MarketplaceHome() {
             <span className="deal-tile-shop-copy">
               <strong>Earn Rewards</strong>
               <span className="deal-tile-shop-caption">Share and Get Paid</span>
+            </span>
+          </a>
+
+          <a className="deal-tile deal-tile-shop" href="#popular">
+            <span className="deal-tile-shop-icon"><Store aria-hidden="true" size={32} /></span>
+            <span className="deal-tile-shop-copy">
+              <strong>Spacekoin</strong>
+              <span className="deal-tile-shop-caption">Voucher and coins</span>
             </span>
           </a>
         </nav>
@@ -365,26 +393,17 @@ export function MarketplaceHome() {
 
         <section className="market-newsletter">
           <div className="newsletter-mark"><Sparkles aria-hidden="true" size={22} /></div>
-          <div><h2>A little joy in your inbox</h2><p>Get the latest finds, fresh deals and a little inspiration.</p></div>
-          <Link href="/signup">Join SpaciMore <ArrowRight aria-hidden="true" size={15} /></Link>
+          <div><h2>Spaci<span>More</span></h2></div>
+          <Link href="/signup">Safety</Link>
+          <Link href="/signup"> Help </Link>
+          <Link href="/signup">Contact </Link>
         </section>
       </main>
 
       <footer className="market-footer">
         <div className="market-container">
-          <div className="footer-top">
-            <Link className="market-brand footer-brand" href="/">
-              <span className="market-brand-mark">S</span><span>spaci<span>more</span></span>
-            </Link>
-            <div className="footer-newsletter"><b>NEW HERE?</b><span>Sign up for the good stuff.</span><Link href="/signup">Create an account <ArrowRight aria-hidden="true" size={14} /></Link></div>
-            <div className="footer-app"><b>SHOP ON THE GO</b><span>Take SpaciMore with you.</span></div>
-          </div>
-          <div className="footer-links">
-            <div><b>LET US HELP YOU</b><a href="#popular">Help centre</a><a href="#popular">How to shop</a><a href="#popular">Delivery & returns</a></div>
-            <div><b>ABOUT SPACIMORE</b><a href="#popular">About us</a><a href="#popular">Careers</a><a href="#popular">Terms & conditions</a><Link href="/welcome">Original workspace page</Link></div>
-            <div><b>MAKE IT HAPPEN</b><a href="#popular">Sell with us</a><a href="#popular">Partner with us</a><a href="#popular">Contact us</a></div>
-            <div><b>SHOP YOUR WAY</b><a href="#popular">Phones & electronics</a><a href="#popular">Home & living</a><a href="#popular">Fashion & beauty</a></div>
-          </div>
+         
+          
           <div className="footer-bottom"><span>© SpaciMore. Made for your everyday.</span><span>Secure shopping · Easy returns · Here to help</span></div>
         </div>
       </footer>

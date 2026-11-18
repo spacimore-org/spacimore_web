@@ -179,13 +179,19 @@
 
 .login-story {
   background-color: var(--login-forest);
-  background-image: repeating-linear-gradient(
-    132deg,
-    transparent 0,
-    transparent 51px,
-    rgba(217, 239, 218, 0.035) 52px,
-    transparent 53px
-  );
+  background-image:
+    repeating-linear-gradient(
+      132deg,
+      transparent 0,
+      transparent 51px,
+      rgba(217, 239, 218, 0.035) 52px,
+      transparent 53px
+    ),
+    linear-gradient(rgba(85, 26, 152, 0.9), rgba(85, 26, 152, 0.9)),
+    url("/market.png");
+  background-position: center, center, center;
+  background-repeat: repeat, repeat, no-repeat;
+  background-size: auto, auto, cover;
   border-radius: 3px;
   color: #f6f5eb;
   display: flex;

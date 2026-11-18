@@ -14,8 +14,8 @@ export default function SignupPage() {
 
         <div className="login-content">
           <span className="login-eyebrow">A GOOD PLACE TO START</span>
-          <h1 id="signup-title">Join SpaciMore</h1>
-          <p className="login-description">Create an account and make room for good things.</p>
+          <h1 id="signup-title">How would you like to join ?</h1>
+          <p className="login-description">Choose the account that fits you best</p>
           <SignUpForm />
           <p className="auth-switch">
             Already have an account? <Link href="/login">Sign in</Link>

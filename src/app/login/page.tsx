@@ -38,8 +38,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         <p className="login-copyright">© SPACIMORE</p>
       </section>
 
-      <aside className="login-story" aria-label="A quieter kind of progress">
-        <span className="story-eyebrow">A QUIETER KIND OF PROGRESS</span>
+      <aside className="login-story" aria-label="preferred marketplace">
+        <span className="story-eyebrow">Preferred Marketplace</span>
         <div className="story-copy">
           <h2>Buy, sell and grow<br />together.</h2>
           <p>A little space to gather your thoughts and begin<br className="desktop-break" /> again, whenever you need.</p>
