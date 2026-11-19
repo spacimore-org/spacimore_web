@@ -4,6 +4,12 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSiteUrl } from "@/lib/supabase/env";
 
+const accountOptionsByType: Record<string, readonly string[]> = {
+  customer: ["buyer", "seller"],
+  service_provider: ["book_service", "provide_service"],
+  storage: ["rent_space", "lease_space"],
+};
+
 export type AuthActionState = {
   error?: string;
   message?: string;
@@ -52,6 +58,7 @@ export async function signUpAction(
   const password = readPassword(formData);
   const confirmation = formData.get("confirmPassword");
   const accountType = formData.get("accountType");
+  const accountOption = formData.get("accountOption");
   const validAccountTypes = [
     "customer",
     "business",
@@ -66,6 +73,16 @@ export async function signUpAction(
   if (typeof accountType !== "string" || !validAccountTypes.includes(accountType)) {
     return { error: "Choose a valid account type." };
   }
+  const validOptions = accountOptionsByType[accountType];
+  let accountRole: string | undefined;
+  if (validOptions) {
+    if (typeof accountOption !== "string" || !validOptions.includes(accountOption)) {
+      return { error: "Choose a valid account option." };
+    }
+    accountRole = accountOption;
+  } else if (accountOption !== null && accountOption !== "") {
+    return { error: "Choose a valid account option." };
+  }
   if (password.length < 8) {
     return { error: "Your password must be at least 8 characters." };
   }
@@ -79,7 +96,10 @@ export async function signUpAction(
     password,
     options: {
       emailRedirectTo: new URL("/auth/callback", getSiteUrl()).toString(),
-      data: { account_type: accountType },
+      data: {
+        account_type: accountType,
+        ...(accountRole ? { account_role: accountRole } : {}),
+      },
     },
   });
 

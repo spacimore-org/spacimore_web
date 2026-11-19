@@ -306,6 +306,12 @@
   width: 47px;
 }
 
+.account-avatar svg {
+  color: #765497;
+  height: 38px;
+  width: 38px;
+}
+
 .account-option-copy {
   display: grid;
   flex: 1;
@@ -351,6 +357,12 @@
   min-height: 62px;
 }
 
+.signup-page .auth-submit.signup-main-continue {
+  border-radius: 12px;
+  height: 50px;
+  min-height: 50px;
+}
+
 .signup-page .auth-submit:hover {
   background: linear-gradient(105deg, #8764a6, #6d2088);
 }
@@ -364,6 +376,11 @@
   font-size: 13px;
   font-weight: 650;
   padding: 0;
+}
+
+.signup-back-option {
+  display: block;
+  margin-bottom: 12px;
 }
 
 .visually-hidden {
