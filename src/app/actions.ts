@@ -57,6 +57,9 @@ export async function signUpAction(
   const email = readEmail(formData);
   const password = readPassword(formData);
   const confirmation = formData.get("confirmPassword");
+  const firstNameValue = formData.get("firstName");
+  const lastNameValue = formData.get("lastName");
+  const phoneValue = formData.get("phone");
   const accountType = formData.get("accountType");
   const accountOption = formData.get("accountOption");
   const validAccountTypes = [
@@ -83,6 +86,16 @@ export async function signUpAction(
   } else if (accountOption !== null && accountOption !== "") {
     return { error: "Choose a valid account option." };
   }
+  const firstName = typeof firstNameValue === "string" ? firstNameValue.trim() : "";
+  const lastName = typeof lastNameValue === "string" ? lastNameValue.trim() : "";
+  const phone = typeof phoneValue === "string" ? phoneValue.trim() : "";
+  const phoneDigits = phone.replace(/\D/g, "");
+  if (
+    accountRole === "buyer" &&
+    (!firstName || !lastName || phoneDigits.length < 7 || phoneDigits.length > 15 || !/^[+()\d\s.-]+$/.test(phone))
+  ) {
+    return { error: "Enter your first name, last name, and a valid phone number." };
+  }
   if (password.length < 8) {
     return { error: "Your password must be at least 8 characters." };
   }
@@ -99,6 +112,13 @@ export async function signUpAction(
       data: {
         account_type: accountType,
         ...(accountRole ? { account_role: accountRole } : {}),
+        ...(accountRole === "buyer"
+          ? {
+              first_name: firstName,
+              last_name: lastName,
+              phone,
+            }
+          : {}),
       },
     },
   });
@@ -114,6 +134,33 @@ export async function signUpAction(
   return {
     message: "Check your inbox for a confirmation link to finish creating your account.",
   };
+}
+
+export async function startSocialSignUpAction(
+  _previousState: AuthActionState,
+  formData: FormData,
+): Promise<AuthActionState> {
+  const provider = formData.get("provider");
+  if (provider !== "google" && provider !== "apple") {
+    return { error: "Choose a valid sign-up provider." };
+  }
+
+  const callbackUrl = new URL("/auth/callback", getSiteUrl());
+  callbackUrl.searchParams.set("signup", "buyer");
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider,
+    options: { redirectTo: callbackUrl.toString() },
+  });
+
+  if (error) {
+    return { error: error.message };
+  }
+  if (!data.url) {
+    return { error: "Unable to start social sign-up. Please try again." };
+  }
+
+  redirect(data.url);
 }
 
 export async function requestPasswordResetAction(

@@ -102,8 +102,8 @@
 }
 
 .sign-in-page .forgot-password-link {
-  align-self: flex-start;
-  color: #426d53;
+  align-self: flex-end;
+  color: #633C90;
   font-size: 10px;
   font-weight: 700;
 }
@@ -181,12 +181,16 @@
   padding-top: 0;
 }
 
+.signup-page .auth-switch {
+  font-size: 15px;
+}
+
 .sign-in-page .auth-switch {
   font-size: 14px;
 }
 
 .login-page .auth-switch a {
-  color: #426d53;
+  color: #633C90;
 }
 
 .login-copyright {
@@ -233,6 +237,16 @@
   text-align: center;
 }
 
+.signup-page .login-content h1.signup-account-heading {
+  font-size: clamp(23.4px, 2.16vw, 30.6px);
+  text-align: left;
+}
+
+.signup-page .login-content h1.signup-option-heading {
+  font-size: clamp(22.88px, 2.112vw, 29.92px);
+  text-align: left;
+}
+
 .signup-page .login-eyebrow {
   display: none;
 }
@@ -242,6 +256,14 @@
   font-size: 15px;
   margin: 0 0 24px;
   text-align: center;
+}
+
+.signup-page .login-content .signup-account-description {
+  text-align: left;
+}
+
+.signup-page .login-content .signup-option-description {
+  text-align: left;
 }
 
 .signup-flow .auth-form {
@@ -334,8 +356,8 @@
 .account-radio {
   border: 2px solid #916eae;
   border-radius: 50%;
-  flex: 0 0 34px;
-  height: 34px;
+  flex: 0 0 25.5px;
+  height: 25.5px;
   margin-left: auto;
   position: relative;
 }
@@ -344,7 +366,7 @@
   background: #916eae;
   border-radius: 50%;
   content: "";
-  inset: 3px;
+  inset: 2.25px;
   position: absolute;
 }
 
@@ -363,23 +385,33 @@
   min-height: 50px;
 }
 
+.signup-page .auth-submit.signup-option-continue {
+  border-radius: 12px;
+  height: 50px;
+  min-height: 50px;
+}
+
 .signup-page .auth-submit:hover {
   background: linear-gradient(105deg, #8764a6, #6d2088);
 }
 
 .signup-back {
+  align-items: center;
   align-self: flex-start;
   background: transparent;
   border: 0;
   color: #765497;
   cursor: pointer;
+  display: inline-flex;
   font-size: 13px;
   font-weight: 650;
+  gap: 4px;
   padding: 0;
+  white-space: nowrap;
 }
 
 .signup-back-option {
-  display: block;
+  display: inline-flex;
   margin-bottom: 12px;
 }
 
@@ -507,6 +539,14 @@
     white-space: normal;
   }
 
+  .signup-page .login-content h1.signup-account-heading {
+    font-size: clamp(17.1px, 4.86vw, 21.6px);
+  }
+
+  .signup-page .login-content h1.signup-option-heading {
+    font-size: clamp(16.72px, 4.752vw, 21.12px);
+  }
+
   .signup-page .login-description {
     font-size: 15px;
     margin-bottom: 24px;
@@ -562,8 +602,8 @@
   }
 
   .account-radio {
-    flex-basis: 34px;
-    height: 34px;
+    flex-basis: 25.5px;
+    height: 25.5px;
   }
 
   .signup-selector {
@@ -573,6 +613,11 @@
   .signup-page .auth-submit {
     font-size: 18px;
     min-height: 62px;
+  }
+
+  .signup-page .auth-submit.signup-option-continue {
+    height: 50px;
+    min-height: 50px;
   }
 
   .login-page .field label,
@@ -610,6 +655,10 @@
     margin-top: 32px;
   }
 
+  .signup-page .auth-switch {
+    font-size: 19.5px;
+  }
+
   .sign-in-page .auth-switch {
     font-size: 18.2px;
   }
@@ -636,4 +685,135 @@
   .login-content h1 {
     font-size: clamp(29px, 8vw, 35px);
   }
+}
+
+.signup-page .signup-buyer-credentials {
+  gap: 12px;
+}
+
+.signup-name-fields {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.signup-page .signup-buyer-credentials .field {
+  gap: 6px;
+}
+
+.signup-page .signup-buyer-credentials .field label {
+  font-size: 13px;
+}
+
+.signup-page .signup-buyer-credentials .field input {
+  border-radius: 7px;
+  font-size: 14px;
+  height: 48px;
+  padding-inline: 12px;
+}
+
+.signup-social {
+  margin-top: 20px;
+}
+
+.signup-social-divider {
+  align-items: center;
+  color: #77727d;
+  display: flex;
+  font-size: 13px;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.signup-social-divider::before,
+.signup-social-divider::after {
+  background: #e7e2eb;
+  content: "";
+  flex: 1;
+  height: 1px;
+}
+
+.signup-social-options {
+  display: grid;
+  gap: 10px;
+}
+
+.signup-social-button {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #d8d3dd;
+  border-radius: 8px;
+  color: #25222a;
+  cursor: pointer;
+  display: flex;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  gap: 12px;
+  justify-content: center;
+  min-height: 50px;
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+.signup-social-button:hover:not(:disabled) {
+  background: #faf8fc;
+  border-color: #9c81b3;
+}
+
+.signup-social-button:focus-visible {
+  outline: 3px solid #8e6ab0;
+  outline-offset: 2px;
+}
+
+.signup-social-button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.signup-provider-google {
+  height: 19px;
+  width: 19px;
+}
+
+.signup-provider-apple {
+  height: 20px;
+  width: 17px;
+}
+
+.signup-social .form-message {
+  margin-top: 12px;
+}
+
+@media (max-width: 760px) {
+  .signup-page .signup-buyer-credentials .field input {
+    height: 52px;
+  }
+}
+
+.signup-page .login-content h1.signup-shopper-heading {
+  font-size: clamp(23.4px, 2.16vw, 30.6px);
+  text-align: left;
+}
+
+.signup-page .login-content .signup-shopper-description {
+  text-align: left;
+}
+
+@media (max-width: 760px) {
+  .signup-page .login-content h1.signup-shopper-heading {
+    font-size: clamp(17.1px, 4.86vw, 21.6px);
+  }
+}
+
+.login-page.sign-in-page .auth-submit {
+  background: linear-gradient(105deg, #9472b2, #782497);
+  border: 0;
+  border-radius: 12px;
+  font-size: 18px;
+  height: 50px;
+  min-height: 50px;
+}
+
+.login-page.sign-in-page .auth-submit:hover {
+  background: linear-gradient(105deg, #8764a6, #6d2088);
 }

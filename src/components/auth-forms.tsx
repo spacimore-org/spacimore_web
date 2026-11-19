@@ -6,6 +6,7 @@ import { useActionState, useState } from "react";
 import {
   ArrowRight,
   Building2,
+  ChevronLeft,
   ChevronRight,
   Eye,
   EyeOff,
@@ -20,16 +21,17 @@ import {
   requestPasswordResetAction,
   signInAction,
   signUpAction,
+  startSocialSignUpAction,
   updatePasswordAction,
   type AuthActionState,
 } from "@/app/actions";
 
 const accountTypes = [
-  { value: "customer", label: "Marketplace", description: "Shop or sell products", image: "/customer.png" },
-  { value: "service_provider", label: "Artisans", description: "Book or provide skilled services", image: "/provider.png" },
-  { value: "storage", label: "Storage", description: "Rent or lease storage space", image: "/storage.png" },
-  { value: "business", label: "Marketer", description: "Market products and earn rewards", image: "/business.png" },
-  { value: "agent", label: "Agent", description: "Act as an agent for houses and properties in Nigeria", image: "/agent.png" },
+  { value: "customer", label: "Marketplace", description: "Shop and buy varieties of products or sell products to customer.", image: "/business.png" },
+  { value: "service_provider", label: "Artisans", description: "Hire skilled & verified professionals or offer skilled services.", image: "/provider.png" },
+  { value: "storage", label: "Storage", description: "Rent space for your business or lease storage space to tenants.", image: "/storage.png" },
+  { value: "business", label: "Marketer", description: "Promote products/services and earn rewards on every sale.", image: "/affiliate.png" },
+  { value: "agent", label: "Agent", description: "List, promote and manage offerings on behalf of businesses or individuals.", image: "/agent.png" },
 ] as const;
 
 type AccountType = (typeof accountTypes)[number]["value"];
@@ -44,8 +46,8 @@ type RoleOption = {
 
 const roleOptions: Partial<Record<AccountType, RoleOption[]>> = {
   customer: [
-    { value: "buyer", label: "Buyer", description: "People who will buy goods on the platform", icon: ShoppingCart },
-    { value: "seller", label: "Seller", description: "People who will sell goods on the platform", icon: Store },
+    { value: "buyer", label: "Shopper", description: "I want to shop and buy products", icon: ShoppingCart },
+    { value: "seller", label: "Vendor", description: "I want to sell goods on the platform", icon: Store },
   ],
   service_provider: [
     { value: "book_service", label: "Book Service", description: "People who book services from skilled work professionals", icon: Wrench },
@@ -72,15 +74,15 @@ function FormFeedback({ state }: { state: AuthActionState }) {
 function EmailField() {
   return (
     <div className="field">
-      <label htmlFor="email">Email address</label>
-      <input id="email" name="email" type="email" autoComplete="email" placeholder="you@example.com" required />
+      <label htmlFor="email">Email Address</label>
+      <input id="email" name="email" type="email" autoComplete="email" placeholder="you@spacimore.com" required />
     </div>
   );
 }
 
 function PasswordField({
   id = "password",
-  label = "Password",
+  label = "Create Password",
   autoComplete = "current-password",
 }: {
   id?: string;
@@ -134,14 +136,38 @@ export function SignInForm() {
   );
 }
 
+function GoogleMark() {
+  return (
+    <svg aria-hidden="true" className="signup-provider-google" viewBox="0 0 48 48">
+      <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5Z" />
+      <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.88c-.58 2.96-2.26 5.48-4.76 7.18l7.73 6C44.36 37.93 46.98 31.8 46.98 24.55Z" />
+      <path fill="#FBBC05" d="M10.53 28.59a14.4 14.4 0 0 1 0-9.18l-7.98-6.19a23.95 23.95 0 0 0 0 21.56l7.98-6.19Z" />
+      <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.9-5.8l-7.73-6c-2.14 1.44-4.88 2.3-8.17 2.3-6.26 0-11.57-4.22-13.46-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48Z" />
+    </svg>
+  );
+}
+
+function AppleMark() {
+  return (
+    <svg aria-hidden="true" className="signup-provider-apple" viewBox="0 0 384 512">
+      <path fill="currentColor" d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.8-44.6-35.6-2.8-74.5 20.8-88.8 20.8-15.1 0-49.5-19.8-76.6-19.8C62.5 141.2 0 187.1 0 281.1c0 27.8 5.1 56.5 15.3 86.1 13.6 38.9 62.7 134.2 114 132.7 24.2-.6 41.3-17.2 74.4-17.2 32.1 0 47.9 17.2 74.9 17.2 51.8-.8 96.2-87.4 109.2-126.4-69.3-32.7-69.1-102.8-69.1-104.8ZM262.5 104.5c27.4-32.5 24.9-62.4 24.1-73.2-24.2 1.4-52.2 16.5-68.1 34.6-17.5 19.5-27.8 43.6-25.6 70.7 26.2 2 50.1-11.4 69.6-32.1Z" />
+    </svg>
+  );
+}
+
 export function SignUpForm() {
   const [state, action, pending] = useActionState(signUpAction, initialState);
+  const [socialState, socialAction, socialPending] = useActionState(
+    startSocialSignUpAction,
+    initialState,
+  );
   const [selectedAccount, setSelectedAccount] = useState<AccountType>("customer");
   const [selectedOption, setSelectedOption] = useState<AccountOption | "">("");
   const [step, setStep] = useState<"account" | "option" | "credentials">("account");
   const selectedAccountType = accountTypes.find(({ value }) => value === selectedAccount)!;
   const options = roleOptions[selectedAccount];
   const selectedRole = options?.find(({ value }) => value === selectedOption);
+  const isBuyerSignup = selectedOption === "buyer";
 
   function continueFromAccount() {
     if (roleOptions[selectedAccount]) {
@@ -161,41 +187,102 @@ export function SignUpForm() {
 
   return (
     <div className="signup-flow">
-      <h1 id="signup-title">
+      <h1
+        className={
+          step === "credentials" && isBuyerSignup
+            ? "signup-shopper-heading"
+            : step === "account"
+            ? "signup-account-heading"
+            : step === "option"
+              ? "signup-option-heading"
+              : undefined
+        }
+        id="signup-title"
+      >
         {step === "credentials"
-          ? "Create your account"
+          ? isBuyerSignup
+            ? "Create Shopper Account"
+            : "Create your account"
           : step === "option"
             ? `How will you use ${selectedAccountType.label}?`
             : "How would you like to join?"}
       </h1>
-      <p className="login-description">
+      <p
+        className={`login-description${step === "credentials" && isBuyerSignup ? " signup-shopper-description" : step === "account" ? " signup-account-description" : step === "option" ? " signup-option-description" : ""}`}
+      >
         {step === "credentials"
-          ? credentialsDescription
+          ? isBuyerSignup
+            ? "Join SpaciMore to discover and shop from trusted sellers"
+            : credentialsDescription
           : step === "option"
             ? "Choose the option that best describes you"
             : "Choose the account that fits you best"}
       </p>
 
       {step === "credentials" ? (
-        <form action={action} className="auth-form signup-credentials">
-          <input type="hidden" name="accountType" value={selectedAccount} />
-          <input type="hidden" name="accountOption" value={selectedOption} />
-          <button
-            className="signup-back"
-            onClick={() => setStep(options ? "option" : "account")}
-            type="button"
-          >
-            ← {options ? "Change selection" : "Change account type"}
-          </button>
-          <EmailField />
-          <PasswordField autoComplete="new-password" />
-          <PasswordField id="confirmPassword" label="Confirm password" autoComplete="new-password" />
-          <FormFeedback state={state} />
-          <button className="button auth-submit" type="submit" disabled={pending}>
-            {pending ? "Creating account..." : "Create account"}
-            <ArrowRight aria-hidden="true" size={16} />
-          </button>
-        </form>
+        <>
+          <form action={action} className={`auth-form signup-credentials${isBuyerSignup ? " signup-buyer-credentials" : ""}`}>
+            <input type="hidden" name="accountType" value={selectedAccount} />
+            <input type="hidden" name="accountOption" value={selectedOption} />
+            <button
+              className="signup-back"
+              onClick={() => setStep(options ? "option" : "account")}
+              type="button"
+            >
+              <ChevronLeft aria-hidden="true" size={16} />
+              {options ? "Change Selection" : "Go Back"}
+            </button>
+            {isBuyerSignup && (
+              <div className="signup-name-fields">
+                <div className="field">
+                  <label htmlFor="firstName">First Name</label>
+                  <input id="firstName" name="firstName" autoComplete="given-name" required />
+                </div>
+                <div className="field">
+                  <label htmlFor="lastName">Last Name</label>
+                  <input id="lastName" name="lastName" autoComplete="family-name" required />
+                </div>
+              </div>
+            )}
+            <EmailField />
+            {isBuyerSignup && (
+              <div className="field">
+                <label htmlFor="phone">Phone Number</label>
+                <input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  autoComplete="tel"
+                  placeholder="+234 801 234 5678"
+                  required
+                />
+              </div>
+            )}
+            <PasswordField autoComplete="new-password" />
+            <PasswordField id="confirmPassword" label="Confirm password" autoComplete="new-password" />
+            <FormFeedback state={state} />
+            <button className="button auth-submit" type="submit" disabled={pending}>
+              {pending ? "Creating account..." : isBuyerSignup ? "Continue" : "Create account"}
+              <ArrowRight aria-hidden="true" size={16} />
+            </button>
+          </form>
+          {isBuyerSignup && (
+            <div className="signup-social">
+              <div className="signup-social-divider"><span>or continue with</span></div>
+              <form action={socialAction} className="signup-social-options">
+                <button className="signup-social-button" name="provider" value="google" type="submit" disabled={socialPending}>
+                  <GoogleMark />
+                  {socialPending ? "Connecting..." : "Continue with Google"}
+                </button>
+                <button className="signup-social-button" name="provider" value="apple" type="submit" disabled={socialPending}>
+                  <AppleMark />
+                  {socialPending ? "Connecting..." : "Continue with Apple"}
+                </button>
+              </form>
+              <FormFeedback state={socialState} />
+            </div>
+          )}
+        </>
       ) : (
         <>
           {step === "option" && (
@@ -207,7 +294,8 @@ export function SignUpForm() {
               }}
               type="button"
             >
-              ← Change account type
+              <ChevronLeft aria-hidden="true" size={16} />
+              Go Back
             </button>
           )}
           <div className="signup-selector">
@@ -265,7 +353,7 @@ export function SignUpForm() {
                   ))}
             </fieldset>
             <button
-              className={`button auth-submit${step === "account" ? " signup-main-continue" : ""}`}
+              className={`button auth-submit${step === "account" ? " signup-main-continue" : step === "option" ? " signup-option-continue" : ""}`}
               onClick={step === "account" ? continueFromAccount : () => setStep("credentials")}
               disabled={step === "option" && !selectedOption}
               type="button"

@@ -20,5 +20,25 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL("/login?error=callback", request.url));
   }
 
+  if (request.nextUrl.searchParams.get("signup") === "buyer") {
+    const { data, error: userError } = await supabase.auth.getUser();
+    if (userError || !data.user) {
+      return NextResponse.redirect(new URL("/signup?error=callback", request.url));
+    }
+
+    if (!data.user.user_metadata.account_type) {
+      const { error: metadataError } = await supabase.auth.updateUser({
+        data: {
+          ...data.user.user_metadata,
+          account_type: "customer",
+          account_role: "buyer",
+        },
+      });
+      if (metadataError) {
+        return NextResponse.redirect(new URL("/signup?error=callback", request.url));
+      }
+    }
+  }
+
   return NextResponse.redirect(new URL(destination, request.url));
 }

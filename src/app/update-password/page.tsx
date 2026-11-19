@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { AuthShell } from "@/components/auth-shell";
+import { Sprout } from "lucide-react";
 import { UpdatePasswordForm } from "@/components/auth-forms";
 import { createClient } from "@/lib/supabase/server";
+import "../login/login.css";
 
 export const instant = false;
 
@@ -9,29 +10,81 @@ export default async function UpdatePasswordPage() {
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getUser();
 
-  if (error) {
+  if (error && error.name !== "AuthSessionMissingError") {
     throw error;
   }
 
   if (!data.user) {
     return (
-      <AuthShell
-        title="This link has expired"
-        description="Password reset links can only be used once. Request a fresh link to continue."
-      >
-        <Link className="button auth-submit" href="/forgot-password">
-          Request a new link <span aria-hidden="true">↗</span>
-        </Link>
-      </AuthShell>
+      <main className="login-page sign-in-page update-password-page">
+        <section className="login-panel" aria-labelledby="update-password-title">
+          <Link className="login-brand" href="/" aria-label="SpaciMore home">
+            <span className="login-brand-mark"><Sprout aria-hidden="true" size={20} /></span>
+            <span>SpaciMore</span>
+          </Link>
+
+          <div className="login-content">
+            <h1 id="update-password-title">This link has expired</h1>
+            <p className="login-description">
+              Password reset links can only be used once. Request a fresh link to continue.
+            </p>
+            <Link className="button auth-submit" href="/forgot-password">
+              Request a new link <span aria-hidden="true">↗</span>
+            </Link>
+            <p className="auth-switch">
+              Remembered your password? <Link href="/login">Back to sign in</Link>
+            </p>
+          </div>
+
+          <p className="login-copyright">© SPACIMORE</p>
+        </section>
+
+        <aside className="login-story" aria-label="preferred marketplace">
+          <span className="story-eyebrow">Your Preferred Marketplace</span>
+          <div className="story-copy">
+            <h2>Buy, sell and grow<br />together.</h2>
+          </div>
+          <div className="story-art" aria-hidden="true">
+            <span className="story-orbit story-orbit-one" />
+            <span className="story-orbit story-orbit-two" />
+          </div>
+        </aside>
+      </main>
     );
   }
 
   return (
-    <AuthShell
-      title="Choose a new password"
-      description="Use at least 8 characters. You can sign in with it right away."
-    >
-      <UpdatePasswordForm />
-    </AuthShell>
+    <main className="login-page sign-in-page update-password-page">
+      <section className="login-panel" aria-labelledby="update-password-title">
+        <Link className="login-brand" href="/" aria-label="SpaciMore home">
+          <span className="login-brand-mark"><Sprout aria-hidden="true" size={20} /></span>
+          <span>SpaciMore</span>
+        </Link>
+
+        <div className="login-content">
+          <h1 id="update-password-title">Choose a new password</h1>
+          <p className="login-description">
+            Use at least 8 characters. You can sign in with it right away.
+          </p>
+          <UpdatePasswordForm />
+          <p className="auth-switch">
+            Remembered your password? <Link href="/login">Back to sign in</Link>
+          </p>
+        </div>
+
+        <p className="login-copyright">© SPACIMORE</p>
+      </section>
+
+      <aside className="login-story" aria-label="preferred marketplace">
+        <span className="story-eyebrow">Your Preferred Marketplace</span>
+        <div className="story-copy">
+          <h2>Buy, sell and grow<br />together.</h2>
+        </div>
+        <div className="story-art" aria-hidden="true">
+          <span className="story-orbit story-orbit-one" />
+          <span className="story-orbit story-orbit-two" />
+        </div>
+      </aside>
+    </main>
   );
 }
