@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useRef, useState, type ClipboardEvent } from "react";
 import {
   ArrowRight,
   Building2,
@@ -19,11 +19,13 @@ import {
 } from "lucide-react";
 import {
   requestPasswordResetAction,
+  resendEmailSignupOtpAction,
   signInAction,
   signUpAction,
   startSocialSignUpAction,
   updatePasswordAction,
   type AuthActionState,
+  verifyEmailSignupOtpAction,
 } from "@/app/actions";
 
 const accountTypes = [
@@ -36,6 +38,18 @@ const accountTypes = [
 
 type AccountType = (typeof accountTypes)[number]["value"];
 type AccountOption = "buyer" | "seller" | "book_service" | "provide_service" | "rent_space" | "lease_space";
+const shopperCountryCodes = [
+  { country: "Nigeria", code: "+234" },
+  { country: "United States", code: "+1" },
+  { country: "United Kingdom", code: "+44" },
+  { country: "Ghana", code: "+233" },
+  { country: "India", code: "+91" },
+  { country: "United Arab Emirates", code: "+971" },
+  { country: "South Africa", code: "+27" },
+  { country: "Australia", code: "+61" },
+  { country: "Kenya", code: "+254" },
+  { country: "France", code: "+33" },
+] as const;
 
 type RoleOption = {
   value: AccountOption;
@@ -164,6 +178,7 @@ export function SignUpForm() {
   const [selectedAccount, setSelectedAccount] = useState<AccountType>("customer");
   const [selectedOption, setSelectedOption] = useState<AccountOption | "">("");
   const [step, setStep] = useState<"account" | "option" | "credentials">("account");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const selectedAccountType = accountTypes.find(({ value }) => value === selectedAccount)!;
   const options = roleOptions[selectedAccount];
   const selectedRole = options?.find(({ value }) => value === selectedOption);
@@ -236,11 +251,11 @@ export function SignUpForm() {
               <div className="signup-name-fields">
                 <div className="field">
                   <label htmlFor="firstName">First Name</label>
-                  <input id="firstName" name="firstName" autoComplete="given-name" required />
+                  <input id="firstName" name="firstName" autoComplete="given-name" placeholder="Eg David" required />
                 </div>
                 <div className="field">
                   <label htmlFor="lastName">Last Name</label>
-                  <input id="lastName" name="lastName" autoComplete="family-name" required />
+                  <input id="lastName" name="lastName" autoComplete="family-name" placeholder="Eg Smith" required />
                 </div>
               </div>
             )}
@@ -248,20 +263,41 @@ export function SignUpForm() {
             {isBuyerSignup && (
               <div className="field">
                 <label htmlFor="phone">Phone Number</label>
-                <input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  autoComplete="tel"
-                  placeholder="+234 801 234 5678"
-                  required
-                />
+                <div className="signup-phone-fields">
+                  <select
+                    aria-label="Country calling code"
+                    autoComplete="tel-country-code"
+                    defaultValue="+234"
+                    name="phoneCountryCode"
+                  >
+                    {shopperCountryCodes.map(({ country, code }) => (
+                      <option key={country} title={country} value={code}>{code}</option>
+                    ))}
+                  </select>
+                  <input
+                    autoComplete="tel-national"
+                    id="phone"
+                    inputMode="numeric"
+                    maxLength={10}
+                    name="phone"
+                    onChange={(event) => setPhoneNumber(event.currentTarget.value.replace(/\D/g, "").slice(0, 10))}
+                    pattern="[0-9]{7,10}"
+                    placeholder="Phone number"
+                    required
+                    type="tel"
+                    value={phoneNumber}
+                  />
+                </div>
               </div>
             )}
             <PasswordField autoComplete="new-password" />
             <PasswordField id="confirmPassword" label="Confirm password" autoComplete="new-password" />
             <FormFeedback state={state} />
-            <button className="button auth-submit" type="submit" disabled={pending}>
+            <button
+              className={`button auth-submit${isBuyerSignup ? " signup-shopper-submit" : ""}`}
+              type="submit"
+              disabled={pending}
+            >
               {pending ? "Creating account..." : isBuyerSignup ? "Continue" : "Create account"}
               <ArrowRight aria-hidden="true" size={16} />
             </button>
@@ -366,6 +402,106 @@ export function SignUpForm() {
           </div>
         </>
       )}
+    </div>
+  );
+}
+
+export function VerifyAccountForm({ maskedEmail }: { maskedEmail: string }) {
+  const [verifyState, verifyAction, verifyPending] = useActionState(
+    verifyEmailSignupOtpAction,
+    initialState,
+  );
+  const [resendState, resendAction, resendPending] = useActionState(
+    resendEmailSignupOtpAction,
+    initialState,
+  );
+  const [digits, setDigits] = useState(["", "", "", "", "", ""]);
+  const [secondsRemaining, setSecondsRemaining] = useState(60);
+  const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
+
+  useEffect(() => {
+    if (secondsRemaining === 0) return;
+    const timer = window.setTimeout(
+      () => setSecondsRemaining((seconds) => seconds - 1),
+      1000,
+    );
+    return () => window.clearTimeout(timer);
+  }, [secondsRemaining]);
+
+  useEffect(() => {
+    if (!resendState.message) return;
+    const timer = window.setTimeout(() => {
+      setSecondsRemaining(60);
+      setDigits(["", "", "", "", "", ""]);
+      inputRefs.current[0]?.focus();
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [resendState.message]);
+
+  function updateDigit(index: number, value: string) {
+    const digit = value.replace(/\D/g, "").slice(-1);
+    setDigits((current) => current.map((item, position) => position === index ? digit : item));
+    if (digit && index < 5) inputRefs.current[index + 1]?.focus();
+  }
+
+  function handlePaste(event: ClipboardEvent<HTMLDivElement>) {
+    const pastedDigits = event.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    if (!pastedDigits) return;
+    event.preventDefault();
+    setDigits(Array.from({ length: 6 }, (_, index) => pastedDigits[index] ?? ""));
+    inputRefs.current[Math.min(pastedDigits.length, 5)]?.focus();
+  }
+
+  const code = digits.join("");
+
+  return (
+    <div className="verify-account-form">
+      <form action={verifyAction} className="auth-form">
+        <div className="verify-otp-inputs" onPaste={handlePaste} role="group" aria-label="6-digit verification code">
+          {digits.map((digit, index) => (
+            <input
+              aria-label={`Verification code digit ${index + 1}`}
+              autoComplete={index === 0 ? "one-time-code" : "off"}
+              className="verify-otp-digit"
+              inputMode="numeric"
+              key={index}
+              maxLength={1}
+              onChange={(event) => updateDigit(index, event.currentTarget.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Backspace" && !digits[index] && index > 0) {
+                  inputRefs.current[index - 1]?.focus();
+                }
+                if (event.key === "ArrowLeft" && index > 0) inputRefs.current[index - 1]?.focus();
+                if (event.key === "ArrowRight" && index < 5) inputRefs.current[index + 1]?.focus();
+              }}
+              ref={(element) => { inputRefs.current[index] = element; }}
+              type="text"
+              value={digit}
+            />
+          ))}
+        </div>
+        <input name="token" type="hidden" value={code} />
+        <FormFeedback state={verifyState} />
+        <button className="button auth-submit" type="submit" disabled={verifyPending || code.length !== 6}>
+          {verifyPending ? "Verifying..." : "Verify account"}
+          <ChevronRight aria-hidden="true" size={18} />
+        </button>
+      </form>
+
+      <div className="verify-resend">
+        <span>Didn’t receive the code?</span>
+        {secondsRemaining > 0 ? (
+          <span className="verify-resend-countdown">Resend in 0:{String(secondsRemaining).padStart(2, "0")}</span>
+        ) : (
+          <form action={resendAction}>
+            <button className="verify-resend-button" type="submit" disabled={resendPending}>
+              {resendPending ? "Sending..." : "Resend code"}
+            </button>
+          </form>
+        )}
+      </div>
+      <FormFeedback state={resendState} />
+      <p className="verify-email-hint">Code sent to <strong>{maskedEmail}</strong></p>
     </div>
   );
 }

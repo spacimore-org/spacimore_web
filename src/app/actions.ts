@@ -1,19 +1,65 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSiteUrl } from "@/lib/supabase/env";
+
+const pendingEmailCookie = "pending_email_verification";
+const pendingEmailOtpTypeCookie = "pending_email_otp_type";
+const emailOtpLifetime = 60 * 60;
 
 const accountOptionsByType: Record<string, readonly string[]> = {
   customer: ["buyer", "seller"],
   service_provider: ["book_service", "provide_service"],
   storage: ["rent_space", "lease_space"],
 };
+const shopperCountryCodes = [
+  "+234",
+  "+1",
+  "+44",
+  "+233",
+  "+91",
+  "+971",
+  "+27",
+  "+61",
+  "+254",
+  "+33",
+];
 
 export type AuthActionState = {
   error?: string;
   message?: string;
 };
+
+async function setPendingEmailVerification(email: string, otpType: "signup" | "email") {
+  const cookieStore = await cookies();
+  const options = {
+    httpOnly: true,
+    maxAge: emailOtpLifetime,
+    path: "/",
+    sameSite: "lax" as const,
+    secure: process.env.NODE_ENV === "production",
+  };
+  cookieStore.set(pendingEmailCookie, email, options);
+  cookieStore.set(pendingEmailOtpTypeCookie, otpType, options);
+}
+
+async function clearPendingEmailVerification() {
+  const cookieStore = await cookies();
+  cookieStore.delete(pendingEmailCookie);
+  cookieStore.delete(pendingEmailOtpTypeCookie);
+}
+
+async function readPendingEmailVerification() {
+  const cookieStore = await cookies();
+  const email = cookieStore.get(pendingEmailCookie)?.value;
+  const otpType = cookieStore.get(pendingEmailOtpTypeCookie)?.value;
+  if (!email || (otpType !== "signup" && otpType !== "email")) {
+    return null;
+  }
+  return { email, otpType };
+}
 
 function readEmail(formData: FormData) {
   const value = formData.get("email");
@@ -41,10 +87,25 @@ export async function signInAction(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
     return { error: error.message };
+  }
+  if (!data.user) {
+    return { error: "We couldn't sign you in. Please try again." };
+  }
+
+  if (data.user.user_metadata.account_verified === false) {
+    const { error: otpError } = await supabase.auth.signInWithOtp({
+      email,
+      options: { shouldCreateUser: false },
+    });
+    if (otpError) {
+      return { error: otpError.message };
+    }
+    await setPendingEmailVerification(email, "email");
+    redirect("/verify-account");
   }
 
   redirect("/dashboard");
@@ -60,6 +121,7 @@ export async function signUpAction(
   const firstNameValue = formData.get("firstName");
   const lastNameValue = formData.get("lastName");
   const phoneValue = formData.get("phone");
+  const phoneCountryCode = formData.get("phoneCountryCode");
   const accountType = formData.get("accountType");
   const accountOption = formData.get("accountOption");
   const validAccountTypes = [
@@ -89,10 +151,13 @@ export async function signUpAction(
   const firstName = typeof firstNameValue === "string" ? firstNameValue.trim() : "";
   const lastName = typeof lastNameValue === "string" ? lastNameValue.trim() : "";
   const phone = typeof phoneValue === "string" ? phoneValue.trim() : "";
-  const phoneDigits = phone.replace(/\D/g, "");
   if (
     accountRole === "buyer" &&
-    (!firstName || !lastName || phoneDigits.length < 7 || phoneDigits.length > 15 || !/^[+()\d\s.-]+$/.test(phone))
+    (!firstName ||
+      !lastName ||
+      typeof phoneCountryCode !== "string" ||
+      !shopperCountryCodes.some((code) => code === phoneCountryCode) ||
+      !/^\d{7,10}$/.test(phone))
   ) {
     return { error: "Enter your first name, last name, and a valid phone number." };
   }
@@ -116,7 +181,9 @@ export async function signUpAction(
           ? {
               first_name: firstName,
               last_name: lastName,
-              phone,
+              phone: `${phoneCountryCode}${phone}`,
+              phone_country_code: phoneCountryCode,
+              account_verified: false,
             }
           : {}),
       },
@@ -127,6 +194,25 @@ export async function signUpAction(
     return { error: error.message };
   }
 
+  if (accountRole === "buyer") {
+    if (!data.user) {
+      return { error: "We couldn't start verification. Please try signing up again." };
+    }
+    let otpType: "signup" | "email" = "signup";
+    if (data.session) {
+      const { error: otpError } = await supabase.auth.signInWithOtp({
+        email,
+        options: { shouldCreateUser: false },
+      });
+      if (otpError) {
+        return { error: otpError.message };
+      }
+      otpType = "email";
+    }
+    await setPendingEmailVerification(email, otpType);
+    redirect("/verify-account");
+  }
+
   if (data.session) {
     redirect("/dashboard");
   }
@@ -134,6 +220,78 @@ export async function signUpAction(
   return {
     message: "Check your inbox for a confirmation link to finish creating your account.",
   };
+}
+
+export async function verifyEmailSignupOtpAction(
+  _previousState: AuthActionState,
+  formData: FormData,
+): Promise<AuthActionState> {
+  const tokenValue = formData.get("token");
+  const token = typeof tokenValue === "string" ? tokenValue.trim() : "";
+  if (!/^\d{6}$/.test(token)) {
+    return { error: "Enter the 6-digit code from your email." };
+  }
+
+  const pendingVerification = await readPendingEmailVerification();
+  if (!pendingVerification) {
+    return { error: "This verification request has expired. Please sign up again." };
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.verifyOtp({
+    email: pendingVerification.email,
+    token,
+    type: pendingVerification.otpType,
+  });
+
+  if (error) {
+    return { error: "That code is invalid or expired. Check it and try again." };
+  }
+  if (!data.user) {
+    return { error: "We couldn't verify your account. Please request a new code." };
+  }
+
+  if (data.user.user_metadata.account_role === "buyer") {
+    const { error: metadataError } = await supabase.auth.updateUser({
+      data: {
+        ...data.user.user_metadata,
+        account_verified: true,
+      },
+    });
+    if (metadataError) {
+      return { error: metadataError.message };
+    }
+  }
+
+  await clearPendingEmailVerification();
+  redirect("/dashboard");
+}
+
+export async function resendEmailSignupOtpAction(
+  _previousState: AuthActionState,
+): Promise<AuthActionState> {
+  void _previousState;
+  const pendingVerification = await readPendingEmailVerification();
+  if (!pendingVerification) {
+    return { error: "This verification request has expired. Please sign up again." };
+  }
+
+  const supabase = await createClient();
+  const result =
+    pendingVerification.otpType === "signup"
+      ? await supabase.auth.resend({
+          type: "signup",
+          email: pendingVerification.email,
+        })
+      : await supabase.auth.signInWithOtp({
+          email: pendingVerification.email,
+          options: { shouldCreateUser: false },
+        });
+
+  if (result.error) {
+    return { error: result.error.message };
+  }
+  return { message: "A new verification code has been sent." };
 }
 
 export async function startSocialSignUpAction(

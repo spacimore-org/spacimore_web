@@ -712,6 +712,35 @@
   padding-inline: 12px;
 }
 
+.signup-phone-fields {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 96px minmax(0, 1fr);
+}
+
+.signup-page .signup-phone-fields select {
+  appearance: auto;
+  background: #fff;
+  border: 1px solid #e4e3db;
+  border-radius: 7px;
+  color: #23332d;
+  font: inherit;
+  font-size: 14px;
+  height: 48px;
+  padding: 0 10px;
+  width: 100%;
+}
+
+.signup-page .signup-phone-fields input {
+  min-width: 0;
+}
+
+.signup-page .auth-submit.signup-shopper-submit {
+  border-radius: 8px;
+  height: 40px;
+  min-height: 40px;
+}
+
 .signup-social {
   margin-top: 20px;
 }
@@ -788,6 +817,10 @@
   .signup-page .signup-buyer-credentials .field input {
     height: 52px;
   }
+
+  .signup-page .signup-phone-fields select {
+    height: 52px;
+  }
 }
 
 .signup-page .login-content h1.signup-shopper-heading {
@@ -816,4 +849,99 @@
 
 .login-page.sign-in-page .auth-submit:hover {
   background: linear-gradient(105deg, #8764a6, #6d2088);
+}
+
+.verify-account-form {
+  display: grid;
+  gap: 18px;
+}
+
+.verify-account-form .auth-form {
+  gap: 18px;
+}
+
+.verify-otp-inputs {
+  display: flex;
+  gap: clamp(8px, 2vw, 14px);
+  justify-content: space-between;
+}
+
+.login-page .verify-otp-digit {
+  background: #fffefa;
+  border: 1px solid #e4e3db;
+  border-radius: 8px;
+  color: #23332d;
+  font-size: 24px;
+  font-weight: 650;
+  height: 58px;
+  padding: 0;
+  text-align: center;
+  width: min(58px, 14vw);
+}
+
+.login-page .verify-otp-digit:focus {
+  border-color: #633c90;
+  outline: 2px solid rgba(99, 60, 144, 0.2);
+}
+
+.verify-account-form .auth-submit {
+  background: linear-gradient(105deg, #9472b2, #782497);
+  border: 0;
+  border-radius: 12px;
+  font-size: 18px;
+  height: 50px;
+  min-height: 50px;
+}
+
+.verify-account-form .auth-submit:hover {
+  background: linear-gradient(105deg, #8764a6, #6d2088);
+}
+
+.verify-resend {
+  align-items: center;
+  color: #68636d;
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 14px;
+  gap: 6px;
+  justify-content: center;
+}
+
+.verify-resend-countdown {
+  color: #633c90;
+  font-weight: 650;
+}
+
+.verify-resend form {
+  margin: 0;
+}
+
+.verify-resend-button {
+  background: transparent;
+  border: 0;
+  color: #633c90;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  padding: 0;
+}
+
+.verify-resend-button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.verify-email-hint {
+  color: #68636d;
+  font-size: 13px;
+  margin: -8px 0 0;
+  text-align: center;
+}
+
+.verify-email-hint strong {
+  color: #3e3548;
+}
+
+.verify-account-form .form-message {
+  margin: 0;
 }

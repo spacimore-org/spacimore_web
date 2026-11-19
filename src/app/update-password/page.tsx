@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Sprout } from "lucide-react";
+import { isAuthSessionMissingError } from "@supabase/auth-js";
 import { UpdatePasswordForm } from "@/components/auth-forms";
 import { createClient } from "@/lib/supabase/server";
 import "../login/login.css";
@@ -10,7 +11,7 @@ export default async function UpdatePasswordPage() {
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getUser();
 
-  if (error && error.name !== "AuthSessionMissingError") {
+  if (error && !isAuthSessionMissingError(error)) {
     throw error;
   }
 

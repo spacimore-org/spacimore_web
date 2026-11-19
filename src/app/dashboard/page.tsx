@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { signOutAction } from "@/app/actions";
+import { MarketplaceHome } from "@/components/marketplace-home";
 import { createClient } from "@/lib/supabase/server";
+import "../marketplace.css";
 
 export const instant = false;
 
@@ -14,6 +16,25 @@ export default async function DashboardPage() {
   }
   if (!data.user) {
     redirect("/login");
+  }
+
+  if (data.user.user_metadata.account_verified === false) {
+    redirect("/verify-account");
+  }
+
+  if (data.user.user_metadata.account_role === "buyer") {
+    const metadata = data.user.user_metadata;
+    const firstName =
+      typeof metadata.first_name === "string" ? metadata.first_name.trim() : "";
+    const fullName =
+      typeof metadata.full_name === "string" ? metadata.full_name.trim() : "";
+    const displayName =
+      firstName ||
+      fullName.split(/\s+/)[0] ||
+      data.user.email?.split("@")[0] ||
+      "Shopper";
+
+    return <MarketplaceHome signedInUser={{ displayName }} />;
   }
 
   return (

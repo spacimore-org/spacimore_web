@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { signOutAction } from "@/app/actions";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -121,7 +122,11 @@ function ProductSection({
   );
 }
 
-export function MarketplaceHome() {
+export function MarketplaceHome({
+  signedInUser,
+}: {
+  signedInUser?: { displayName: string };
+}) {
   const [query, setQuery] = useState("");
   const [cartCount, setCartCount] = useState(0);
   const [savedItems, setSavedItems] = useState<Set<string>>(new Set());
@@ -204,7 +209,22 @@ export function MarketplaceHome() {
               {cartCount > 0 && <span className="market-cart-count">{cartCount}</span>}
             </span>
             
-            <Link className="market-join-button" href="/login"><UserRound aria-hidden="true" size={18} /><span>Sign In</span></Link>
+            {signedInUser ? (
+              <>
+                <Link className="market-join-button market-user-button" href="/dashboard">
+                  <UserRound aria-hidden="true" size={18} />
+                  <span>Hi, {signedInUser.displayName}</span>
+                </Link>
+                <form action={signOutAction} className="market-signout-form">
+                  <button className="market-signout-button" type="submit">Sign out</button>
+                </form>
+              </>
+            ) : (
+              <Link className="market-join-button" href="/login">
+                <UserRound aria-hidden="true" size={18} />
+                <span>Sign In</span>
+              </Link>
+            )}
           </nav>
         </div>
       </header>
@@ -412,7 +432,7 @@ export function MarketplaceHome() {
         <a className="mobile-nav-active" href="#"><House aria-hidden="true" size={19} />Home</a>
         <button onClick={() => document.querySelector(".market-search input")?.scrollIntoView({ behavior: "smooth", block: "center" })} type="button"><Search aria-hidden="true" size={19} />Search</button>
         <a href="#popular"><Heart aria-hidden="true" size={19} />Discover</a>
-        <Link href="/login"><UserRound aria-hidden="true" size={19} />Account</Link>
+        <Link href={signedInUser ? "/dashboard" : "/login"}><UserRound aria-hidden="true" size={19} />Account</Link>
       </nav>
     </div>
   );

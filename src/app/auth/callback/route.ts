@@ -32,6 +32,7 @@ export async function GET(request: NextRequest) {
           ...data.user.user_metadata,
           account_type: "customer",
           account_role: "buyer",
+          account_verified: true,
         },
       });
       if (metadataError) {
