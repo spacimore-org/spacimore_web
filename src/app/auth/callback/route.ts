@@ -8,16 +8,20 @@ export async function GET(request: NextRequest) {
     next?.startsWith("/") && !next.startsWith("//") && !next.includes("\\")
       ? next
       : "/dashboard";
+  const isPasswordRecovery = destination === "/update-password";
+  const errorDestination = isPasswordRecovery
+    ? "/update-password?error=expired"
+    : "/login?error=callback";
 
-  if (!code) {
-    return NextResponse.redirect(new URL("/login?error=callback", request.url));
+  if (!code || request.nextUrl.searchParams.has("error")) {
+    return NextResponse.redirect(new URL(errorDestination, request.url));
   }
 
   const supabase = await createClient();
   const { error } = await supabase.auth.exchangeCodeForSession(code);
 
   if (error) {
-    return NextResponse.redirect(new URL("/login?error=callback", request.url));
+    return NextResponse.redirect(new URL(errorDestination, request.url));
   }
 
   if (request.nextUrl.searchParams.get("signup") === "buyer") {
