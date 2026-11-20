@@ -71,6 +71,19 @@ function readPassword(formData: FormData) {
   return typeof value === "string" ? value : "";
 }
 
+function meetsPasswordRequirements(password: string) {
+  return (
+    password.length >= 12 &&
+    /[A-Z]/.test(password) &&
+    /[a-z]/.test(password) &&
+    /\d/.test(password) &&
+    /[^A-Za-z0-9]/.test(password)
+  );
+}
+
+const passwordRequirementsMessage =
+  "Use at least 12 characters, including uppercase and lowercase letters, a number, and a special character.";
+
 function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
@@ -161,8 +174,8 @@ export async function signUpAction(
   ) {
     return { error: "Enter your first name, last name, and a valid phone number." };
   }
-  if (password.length < 8) {
-    return { error: "Your password must be at least 8 characters." };
+  if (!meetsPasswordRequirements(password)) {
+    return { error: passwordRequirementsMessage };
   }
   if (typeof confirmation !== "string" || password !== confirmation) {
     return { error: "Those passwords do not match." };
@@ -355,8 +368,8 @@ export async function updatePasswordAction(
   const password = readPassword(formData);
   const confirmation = formData.get("confirmPassword");
 
-  if (password.length < 8) {
-    return { error: "Your password must be at least 8 characters." };
+  if (!meetsPasswordRequirements(password)) {
+    return { error: passwordRequirementsMessage };
   }
   if (typeof confirmation !== "string" || password !== confirmation) {
     return { error: "Those passwords do not match." };

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { BrandLink } from "@/components/brand-link";
 
 type AuthShellProps = {
   title: string;
@@ -18,10 +19,7 @@ export function AuthShell({
     <main className="auth-page">
       <Link className="auth-back" href="/">← Back to home</Link>
       <section className="auth-card" aria-labelledby="auth-title">
-        <Link className="brand auth-brand" href="/" aria-label="SpaciMore home">
-          <span className="brand-mark">f</span>
-          <span>SpaciMore</span>
-        </Link>
+        <BrandLink className="brand auth-brand" />
         <h1 id="auth-title">{title}</h1>
         <p className="auth-intro">{description}</p>
         {children}

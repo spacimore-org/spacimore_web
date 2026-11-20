@@ -61,18 +61,35 @@ input {
   letter-spacing: -1.2px;
 }
 
-.brand-mark {
+.brand-lockup {
   align-items: center;
-  background: var(--foreground);
-  border-radius: 50%;
-  color: var(--accent);
   display: inline-flex;
-  font-family: Georgia, serif;
-  font-size: 20px;
+  gap: 8px;
+}
+
+.brand-lockup-icon {
+  display: block;
+  flex: 0 0 auto;
+  height: 30px;
+  object-fit: contain;
+  width: 32px;
+}
+
+.brand-lockup-wordmark {
+  display: block;
+  height: 18px;
+  object-fit: contain;
+  width: 99px;
+}
+
+.brand .brand-lockup-icon {
   height: 31px;
-  justify-content: center;
-  padding-bottom: 3px;
-  width: 31px;
+  width: 33px;
+}
+
+.brand .brand-lockup-wordmark {
+  height: 21px;
+  width: 115px;
 }
 
 .header-actions {

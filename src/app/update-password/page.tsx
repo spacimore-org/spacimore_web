@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { Sprout } from "lucide-react";
 import { isAuthSessionMissingError } from "@supabase/auth-js";
 import { UpdatePasswordForm } from "@/components/auth-forms";
+import { BrandLink } from "@/components/brand-link";
 import { createClient } from "@/lib/supabase/server";
 import "../login/login.css";
 
@@ -19,10 +19,7 @@ export default async function UpdatePasswordPage() {
     return (
       <main className="login-page sign-in-page update-password-page">
         <section className="login-panel" aria-labelledby="update-password-title">
-          <Link className="login-brand" href="/" aria-label="SpaciMore home">
-            <span className="login-brand-mark"><Sprout aria-hidden="true" size={20} /></span>
-            <span>SpaciMore</span>
-          </Link>
+          <BrandLink className="login-brand" />
 
           <div className="login-content">
             <h1 id="update-password-title">This link has expired</h1>
@@ -57,10 +54,7 @@ export default async function UpdatePasswordPage() {
   return (
     <main className="login-page sign-in-page update-password-page">
       <section className="login-panel" aria-labelledby="update-password-title">
-        <Link className="login-brand" href="/" aria-label="SpaciMore home">
-          <span className="login-brand-mark"><Sprout aria-hidden="true" size={20} /></span>
-          <span>SpaciMore</span>
-        </Link>
+        <BrandLink className="login-brand" />
 
         <div className="login-content">
           <h1 id="update-password-title">Choose a new password</h1>

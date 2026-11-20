@@ -1,0 +1,190 @@
+PRD
+PRODUCTION REQUIRED DOCUMENTATION
+
+
+spacimore Bottom navigation
+A typical structure could have five main navigation tabs:
+Tab	Purpose
+Home	Discover products, deals, banners and recommendations
+Categories	Browse product categories
+Wishlist	Saved products
+Cart	Items ready to purchase
+Account	Orders, addresses, profile, settings
+
+
+
+A. Shopper Home 
+
+The home screen is the marketplace discovery engine.
+
+Screen sections:
+- Search bar — search products, brands, shops.
+- Location/delivery address selector.
+- Promotional banners.
+- Flash sales / limited deals.
+- Shop by category.
+- Recommended products.
+- Best sellers.
+- Recently viewed.
+- Sponsored products.
+- Official stores / top vendors.
+- Popular brands.
+- Recently added products.
+
+
+B. Categories
+
+The category screen organizes the marketplace.
+Main category	Subcategories
+Electronics	Phones, laptops, televisions, accessories
+Fashion	Men, women, shoes, clothing
+Home & Living	Furniture, kitchen, décor
+Appliances	Refrigerators, washing machines, generators
+Beauty	Skincare, makeup, hair
+Grocery	Food, beverages, household essentials
+Sports	Fitness, equipment, outdoor
+Baby & Kids	Toys, clothes, baby care
+Automotive	Parts, accessories, tools
+
+
+C. Search & product discovery
+
+Search functionality:
+- Search by product name.
+- Search by brand.
+- Search by vendor/store.
+- Search suggestions.
+- Recent searches.
+- Trending searches.
+- Filters: price, brand, rating, location, delivery speed.
+- Sort: popularity, price ascending, price descending, newest, ratings.
+
+
+
+D. Product details page
+
+When a shopper selects a product:
+- Product image gallery.
+- Product name.
+- Price.
+- Discount and percentage savings.
+- Product specifications.
+- Available variants (colour, size, model).
+- Stock status.
+- Seller/store information.
+- Seller ratings.
+- Product ratings and reviews.
+- Delivery estimate.
+- Shipping fees.
+- Return policy.
+- Quantity selector.
+- Add to Cart.
+- Buy Now.
+- Wishlist.
+- Share product.
+- Frequently bought together.
+- Similar products.
+
+
+E. Cart
+
+The cart should support:
+- Multiple vendors.
+- Multiple products.
+- Quantity adjustments.
+- Remove items.
+- Save for later.
+- Coupon codes.
+- Shipping estimates.
+- Cart subtotal.
+- Discounts.
+- Delivery charges.
+- Total payable.
+
+
+Important architecture: Products from different vendors should 
+be grouped by vendor internally, even if the shopper sees one combined cart.
+
+F. Checkout
+
+
+Checkout should be a step-by-step process:
+1. Confirm cart items.
+2. Choose delivery address.
+3. Select delivery option.
+4. Choose payment method.
+5. Apply coupon or voucher.
+6. Confirm order.
+7. Complete payment.
+8. Receive order confirmation.
+Payment options could include:
+- Debit card.
+- Bank transfer.
+- USSD.
+- Wallet.
+- Buy now, pay later, where supported.
+- Cash on delivery, if permitted.
+
+
+
+G. Orders
+
+The Orders section should contain:
+- Pending payment.
+- Confirmed.
+- Processing.
+- Shipped.
+- Ready for pickup.
+- Delivered.
+- Cancelled.
+- Returned.
+- Refunded.
+Each order should have an order detail page with:
+- Order number.
+- Items purchased.
+- Vendor.
+- Payment status.
+- Delivery tracking.
+- Delivery address.
+- Timeline.
+- Support.
+- Cancellation/return options, where eligible
+
+
+
+H. Shopper account
+The account screen should contain:
+Section	Features
+My Orders	Order history and tracking
+My Profile	Name, phone, email
+Addresses	Home, office, additional addresses
+Payment Methods	Saved or supported payment methods
+Wishlist	Saved products
+Reviews	Product reviews
+Coupons	Available discount vouchers
+Notifications	Order alerts and promotions
+Customer Support	Help, complaints and dispute resolution
+Settings	Security, password, privacy
+
+
+
+
+
+VENDOR
+
+
+2. Vendor / Seller structure
+Jumia separates the selling experience from the shopping experience 
+through its Vendor Center. Jumia's Nigerian vendor onboarding also describes seller 
+registration, verification, training, product listing, promotion and analytics
+
+If  were building the vendor app, I would use a dedicated vendor navigation structure.
+Vendor bottom navigation
+For a mobile Vendor Center:
+Tab	Purpose
+Overview	Sales, orders, earnings and performance
+Products	Product catalogue and inventory
+Orders	Process customer orders
+Finance	Earnings, fees and payouts
+Store	Shop profile and settings
+

@@ -1,13 +1,11 @@
 import Link from "next/link";
+import { BrandLink } from "@/components/brand-link";
 
 export default function WelcomePage() {
   return (
     <main className="landing">
       <header className="site-header">
-        <Link className="brand" href="/" aria-label="SpaciMore home">
-          <span className="brand-mark">f</span>
-          <span>SpaciMore</span>
-        </Link>
+        <BrandLink className="brand" />
         <nav className="header-actions" aria-label="Main navigation">
           <Link className="nav-link" href="/login">Log in</Link>
           <Link className="button button-small" href="/signup">Get started <span aria-hidden="true">↗</span></Link>

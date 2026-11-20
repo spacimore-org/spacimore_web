@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
-import { Sprout } from "lucide-react";
 import { VerifyAccountForm } from "@/components/auth-forms";
+import { BrandLink } from "@/components/brand-link";
 import "../login/login.css";
 
 export const instant = false;
@@ -19,10 +19,7 @@ export default async function VerifyAccountPage() {
   return (
     <main className="login-page sign-in-page verify-page">
       <section className="login-panel" aria-labelledby="verify-account-title">
-        <Link className="login-brand" href="/" aria-label="SpaciMore home">
-          <span className="login-brand-mark"><Sprout aria-hidden="true" size={20} /></span>
-          <span>SpaciMore</span>
-        </Link>
+        <BrandLink className="login-brand" />
 
         <div className="login-content">
           {email ? (

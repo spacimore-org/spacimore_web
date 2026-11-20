@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { Sprout } from "lucide-react";
 import { SignInForm } from "@/components/auth-forms";
+import { BrandLink } from "@/components/brand-link";
 import "./login.css";
 
 type LoginPageProps = {
@@ -15,10 +15,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   return (
     <main className="login-page sign-in-page">
       <section className="login-panel" aria-labelledby="login-title">
-        <Link className="login-brand" href="/" aria-label="SpaciMore home">
-          <span className="login-brand-mark"><Sprout aria-hidden="true" size={20} /></span>
-          <span>SpaciMore</span>
-        </Link>
+        <BrandLink className="login-brand" />
 
         <div className="login-content">
           {/* <span className="login-eyebrow">A PLACE TO BEGIN AGAIN</span> */}

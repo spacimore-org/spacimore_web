@@ -6,6 +6,7 @@ import { useActionState, useEffect, useRef, useState, type ClipboardEvent } from
 import {
   ArrowRight,
   Building2,
+  Check,
   ChevronLeft,
   ChevronRight,
   Eye,
@@ -98,15 +99,71 @@ function PasswordField({
   id = "password",
   label = "Create Password",
   autoComplete = "current-password",
+  placeholder = "Enter your password",
+  showRequirements = false,
+  minLength = 8,
 }: {
   id?: string;
   label?: string;
   autoComplete?: string;
+  placeholder?: string;
+  showRequirements?: boolean;
+  minLength?: number;
 }) {
+  const [showPassword, setShowPassword] = useState(false);
+  const [password, setPassword] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
+  const requirements = [
+    { label: "At least 12 characters", satisfied: password.length >= 12 },
+    { label: "An uppercase letter", satisfied: /[A-Z]/.test(password) },
+    { label: "A lowercase letter", satisfied: /[a-z]/.test(password) },
+    { label: "A number", satisfied: /\d/.test(password) },
+    { label: "A special character", satisfied: /[^A-Za-z0-9]/.test(password) },
+  ];
+
   return (
-    <div className="field">
+    <div className={`field${showRequirements ? " signup-password-field" : ""}`}>
       <label htmlFor={id}>{label}</label>
-      <input id={id} name={id} type="password" autoComplete={autoComplete} minLength={8} required />
+      <div className="login-password-wrap">
+        <input
+          autoComplete={autoComplete}
+          id={id}
+          minLength={minLength}
+          name={id}
+          onBlur={() => setIsFocused(false)}
+          onChange={(event) => setPassword(event.currentTarget.value)}
+          onFocus={() => setIsFocused(true)}
+          placeholder={placeholder}
+          required
+          type={showPassword ? "text" : "password"}
+          value={password}
+        />
+        <button
+          aria-label={showPassword ? `Hide ${label.toLowerCase()}` : `Show ${label.toLowerCase()}`}
+          aria-pressed={showPassword}
+          className="login-password-toggle"
+          onClick={() => setShowPassword((visible) => !visible)}
+          onMouseDown={(event) => event.preventDefault()}
+          type="button"
+        >
+          {showPassword ? <EyeOff aria-hidden="true" size={17} /> : <Eye aria-hidden="true" size={17} />}
+        </button>
+      </div>
+      {showRequirements && isFocused && (
+        <div className="signup-password-requirements">
+          <strong>Your password must contain:</strong>
+          <ul>
+            {requirements.map(({ label: requirement, satisfied }) => (
+              <li className={satisfied ? "is-satisfied" : ""} key={requirement}>
+                <span aria-hidden="true" className="signup-password-requirement-icon">
+                  {satisfied ? <Check size={14} strokeWidth={3} /> : null}
+                </span>
+                {requirement}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
@@ -290,8 +347,19 @@ export function SignUpForm() {
                 </div>
               </div>
             )}
-            <PasswordField autoComplete="new-password" />
-            <PasswordField id="confirmPassword" label="Confirm password" autoComplete="new-password" />
+            <PasswordField
+              autoComplete="new-password"
+              minLength={12}
+              placeholder="At least 12 characters"
+              showRequirements
+            />
+            <PasswordField
+              autoComplete="new-password"
+              id="confirmPassword"
+              label="Confirm password"
+              minLength={12}
+              placeholder="Re-enter your password"
+            />
             <FormFeedback state={state} />
             <button
               className={`button auth-submit${isBuyerSignup ? " signup-shopper-submit" : ""}`}
@@ -531,8 +599,8 @@ export function UpdatePasswordForm() {
 
   return (
     <form action={action} className="auth-form">
-      <PasswordField id="password" label="New password" autoComplete="new-password" />
-      <PasswordField id="confirmPassword" label="Confirm new password" autoComplete="new-password" />
+      <PasswordField id="password" label="New password" autoComplete="new-password" minLength={12} placeholder="At least 12 characters" />
+      <PasswordField id="confirmPassword" label="Confirm new password" autoComplete="new-password" minLength={12} placeholder="Re-enter your password" />
       <FormFeedback state={state} />
       <button className="button auth-submit" type="submit" disabled={pending}>
         {pending ? "Updating password..." : "Update password"} <span aria-hidden="true">↗</span>

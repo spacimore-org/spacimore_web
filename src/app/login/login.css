@@ -30,15 +30,14 @@
   letter-spacing: -0.5px;
 }
 
-.login-brand-mark {
-  align-items: center;
-  background: var(--login-forest);
-  border-radius: 6px;
-  color: var(--login-leaf);
-  display: inline-flex;
-  height: 30px;
-  justify-content: center;
+.login-brand .brand-lockup-icon {
+  height: 28px;
   width: 30px;
+}
+
+.login-brand .brand-lockup-wordmark {
+  height: 17px;
+  width: 93px;
 }
 
 .login-content {
@@ -710,6 +709,80 @@
   font-size: 14px;
   height: 48px;
   padding-inline: 12px;
+}
+
+.signup-page .signup-credentials .login-password-wrap input {
+  padding-right: 44px;
+}
+
+.signup-page .signup-password-field {
+  position: relative;
+}
+
+.signup-page .signup-password-requirements {
+  background: #003443;
+  border-radius: 12px;
+  box-shadow: 0 12px 28px rgb(0 0 0 / 18%);
+  color: #fff;
+  left: 0;
+  padding: 18px 20px;
+  position: absolute;
+  top: calc(100% + 10px);
+  width: min(100%, 390px);
+  z-index: 5;
+}
+
+.signup-page .signup-password-requirements::before {
+  border-bottom: 10px solid #003443;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  content: "";
+  left: 24px;
+  position: absolute;
+  top: -9px;
+}
+
+.signup-page .signup-password-requirements strong {
+  display: block;
+  font-size: 15px;
+  margin-bottom: 12px;
+}
+
+.signup-page .signup-password-requirements ul {
+  display: grid;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.signup-page .signup-password-requirements li {
+  align-items: center;
+  color: #a9bdc4;
+  display: flex;
+  font-size: 13px;
+  gap: 10px;
+}
+
+.signup-page .signup-password-requirements li.is-satisfied {
+  color: #fff;
+}
+
+.signup-page .signup-password-requirement-icon {
+  align-items: center;
+  border: 2px solid #53717b;
+  border-radius: 50%;
+  color: #fff;
+  display: inline-flex;
+  flex: 0 0 24px;
+  height: 24px;
+  justify-content: center;
+  width: 24px;
+}
+
+.signup-page .signup-password-requirements li.is-satisfied .signup-password-requirement-icon {
+  background: #00c59b;
+  border-color: #00c59b;
 }
 
 .signup-phone-fields {

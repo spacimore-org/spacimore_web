@@ -1,16 +1,13 @@
 import Link from "next/link";
-import { Sprout } from "lucide-react";
 import { ResetPasswordForm } from "@/components/auth-forms";
+import { BrandLink } from "@/components/brand-link";
 import "../login/login.css";
 
 export default function ForgotPasswordPage() {
   return (
     <main className="login-page sign-in-page reset-password-page">
       <section className="login-panel" aria-labelledby="reset-password-title">
-        <Link className="login-brand" href="/" aria-label="SpaciMore home">
-          <span className="login-brand-mark"><Sprout aria-hidden="true" size={20} /></span>
-          <span>SpaciMore</span>
-        </Link>
+        <BrandLink className="login-brand" />
 
         <div className="login-content">
           <h1 id="reset-password-title">Reset your password</h1>

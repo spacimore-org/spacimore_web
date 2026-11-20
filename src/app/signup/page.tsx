@@ -1,16 +1,13 @@
 import Link from "next/link";
-import { Sprout } from "lucide-react";
 import { SignUpForm } from "@/components/auth-forms";
+import { BrandLink } from "@/components/brand-link";
 import "../login/login.css";
 
 export default function SignupPage() {
   return (
     <main className="login-page signup-page">
       <section className="login-panel" aria-labelledby="signup-title">
-        <Link className="login-brand" href="/" aria-label="SpaciMore home">
-          <span className="login-brand-mark"><Sprout aria-hidden="true" size={20} /></span>
-          <span>SpaciMore</span>
-        </Link>
+        <BrandLink className="login-brand" />
 
         <div className="login-content">
           <span className="login-eyebrow">A GOOD PLACE TO START</span>

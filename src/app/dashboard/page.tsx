@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { signOutAction } from "@/app/actions";
+import { BrandLink } from "@/components/brand-link";
 import { MarketplaceHome } from "@/components/marketplace-home";
 import { createClient } from "@/lib/supabase/server";
 import "../marketplace.css";
@@ -40,10 +40,7 @@ export default async function DashboardPage() {
   return (
     <main className="dashboard-page">
       <header className="site-header dashboard-header">
-        <Link className="brand" href="/" aria-label="SpaciMore home">
-          <span className="brand-mark">f</span>
-          <span>SpaciMore</span>
-        </Link>
+        <BrandLink className="brand" />
         <form action={signOutAction}>
           <button className="button-quiet" type="submit">Sign out</button>
         </form>
