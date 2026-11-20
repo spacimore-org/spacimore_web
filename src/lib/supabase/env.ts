@@ -12,5 +12,9 @@ export function getSupabaseEnv() {
 }
 
 export function getSiteUrl() {
+  if (process.env.NODE_ENV === "production") {
+    return "https://spacimore.vercel.app";
+  }
+
   return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 }

@@ -175,10 +175,13 @@ VENDOR
 
 2. Vendor / Seller structure
 Jumia separates the selling experience from the shopping experience 
-through its Vendor Center. Jumia's Nigerian vendor onboarding also describes seller 
-registration, verification, training, product listing, promotion and analytics
+through its Vendor Center. Jumia's Nigerian vendor onboarding also 
+describes seller 
+registration, verification, training, product listing, promotion 
+and analytics
 
-If  were building the vendor app, I would use a dedicated vendor navigation structure.
+If  were building the vendor app, I would use a dedicated vendor 
+navigation structure.
 Vendor bottom navigation
 For a mobile Vendor Center:
 Tab	Purpose
@@ -187,4 +190,159 @@ Products	Product catalogue and inventory
 Orders	Process customer orders
 Finance	Earnings, fees and payouts
 Store	Shop profile and settings
+
+
+
+A. Vendor dashboard / Overview
+
+This is the vendor's business command centre.
+Dashboard cards
+- Total sales.
+- Today's sales.
+- Total orders.
+- Pending orders.
+- Completed orders.
+- Cancelled orders.
+- Available balance.
+- Pending balance.
+- Products in stock.
+- Low-stock products.
+
+
+Dashboard content
+- Sales chart.
+- Orders chart.
+- Sales performance.
+- Top-selling products.
+- Recent orders.
+- Customer reviews.
+- Stock alerts.
+- Marketplace announcements.
+- Promotion opportunities.
+
+
+
+
+B. Products
+Product management
+Vendors should be able to:
+- Add a new product.
+- Edit products.
+- Delete or archive products.
+- Upload multiple images.
+- Add videos, where supported.
+- Create product variants.
+- Set prices.
+- Set discount prices.
+- Set stock quantities.
+- Manage SKU.
+- Set product descriptions.
+- Add specifications.
+- Assign categories.
+- Set product visibility.
+- Check product approval status.
+
+
+Product status
+Status	Meaning
+Draft	Not yet submitted
+Pending review	Awaiting marketplace approval
+Active	Visible to shoppers
+Rejected	Failed marketplace review
+Out of stock	No available inventory
+Inactive	Hidden from marketplace
+
+
+
+C. Vendor orders
+
+
+The vendor should have an order management centre.
+Order tabs
+- All orders.
+- New orders.
+- Processing.
+- Ready to ship.
+- Shipped.
+- Delivered.
+- Cancelled.
+- Returned.
+
+
+Vendor order actions
+- View order details.
+- Accept/process order.
+- Print invoice.
+- Prepare package.
+- Update fulfilment status.
+- Mark as ready for pickup.
+- Handover to logistics.
+- View buyer delivery information as authorized.
+- Request cancellation where appropriate.
+- Respond to return requests.
+
+
+
+The vendor shouldn't be allowed to mark an order 
+as paid or delivered arbitrarily. Payment 
+confirmation and delivery milestones 
+should be controlled by payment and 
+logistics integrations, or by verifiable authorized processes.
+
+D. Inventory management
+
+
+Inventory management should be independent from the product catalogue.
+Feature	Description
+Stock quantity	Current inventory
+Stock adjustment	Add or remove stock
+Stock history	Track changes
+Low-stock alerts	Alert seller when quantity is low
+SKU	Unique stock identifier
+Variants	Separate inventory per size/colour
+Bulk updates	Modify multiple products
+Inventory movement	Track sales, returns and restocking
+
+
+
+E. Finance / Wallet
+
+Vendor finance screen
+- Gross sales.
+- Marketplace commission.
+- Shipping charges.
+- Discounts.
+- Refunds.
+- Net earnings.
+- Pending settlement.
+- Available payout.
+- Payout history.
+- Bank account.
+- Financial statements.
+
+
+Financial flow
+Shopper pays for order
+
+
+Marketplace payment processing
+Payment confirmation, reconciliation and order association
+
+Vendor settlement calculation
+Commission, applicable fees, refunds and adjustments
+
+Vendor payout to bank account
+
+
+The vendor should see exactly how the amount payable was calculated.
+
+
+
+
+The vendor should see exactly how the amount payable was calculated.
+
+when i clicked on the reset link in my mail it brought me to this 
+link 
+https://spacimore.vercel.app/?code=12e0d7e1-b3bf-4249-b961-89d2252acfd2 
+which showed the home page instead of the reset password page
 
