@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useActionState, useEffect, useRef, useState, type ClipboardEvent } from "react";
+import { useActionState, useEffect, useRef, useState, type ClipboardEvent, type FormEvent } from "react";
 import {
   ArrowRight,
   Building2,
@@ -14,6 +14,7 @@ import {
   Hammer,
   ShoppingCart,
   Store,
+  UserRound,
   Warehouse,
   Wrench,
   type LucideIcon,
@@ -27,6 +28,7 @@ import {
   updatePasswordAction,
   type AuthActionState,
   verifyEmailSignupOtpAction,
+  vendorSignUpAction,
 } from "@/app/actions";
 
 const accountTypes = [
@@ -39,6 +41,16 @@ const accountTypes = [
 
 type AccountType = (typeof accountTypes)[number]["value"];
 type AccountOption = "buyer" | "seller" | "book_service" | "provide_service" | "rent_space" | "lease_space";
+type SellerType = "individual" | "business";
+type VendorCredentials = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  phoneCountryCode: string;
+  password: string;
+  confirmPassword: string;
+};
 const shopperCountryCodes = [
   { country: "Nigeria", code: "+234" },
   { country: "United States", code: "+1" },
@@ -86,11 +98,11 @@ function FormFeedback({ state }: { state: AuthActionState }) {
   return null;
 }
 
-function EmailField() {
+function EmailField({ defaultValue = "" }: { defaultValue?: string }) {
   return (
     <div className="field">
       <label htmlFor="email">Email Address</label>
-      <input id="email" name="email" type="email" autoComplete="email" placeholder="you@spacimore.com" required />
+      <input id="email" name="email" type="email" autoComplete="email" placeholder="you@spacimore.com" defaultValue={defaultValue} required />
     </div>
   );
 }
@@ -102,6 +114,7 @@ function PasswordField({
   placeholder = "Enter your password",
   showRequirements = false,
   minLength = 8,
+  initialValue = "",
 }: {
   id?: string;
   label?: string;
@@ -109,9 +122,10 @@ function PasswordField({
   placeholder?: string;
   showRequirements?: boolean;
   minLength?: number;
+  initialValue?: string;
 }) {
   const [showPassword, setShowPassword] = useState(false);
-  const [password, setPassword] = useState("");
+  const [password, setPassword] = useState(initialValue);
   const [isFocused, setIsFocused] = useState(false);
   const requirements = [
     { label: "At least 12 characters", satisfied: password.length >= 12 },
@@ -228,18 +242,29 @@ function AppleMark() {
 
 export function SignUpForm() {
   const [state, action, pending] = useActionState(signUpAction, initialState);
+  const [vendorState, vendorAction, vendorPending] = useActionState(
+    vendorSignUpAction,
+    initialState,
+  );
   const [socialState, socialAction, socialPending] = useActionState(
     startSocialSignUpAction,
     initialState,
   );
   const [selectedAccount, setSelectedAccount] = useState<AccountType>("customer");
   const [selectedOption, setSelectedOption] = useState<AccountOption | "">("");
-  const [step, setStep] = useState<"account" | "option" | "credentials">("account");
+  const [step, setStep] = useState<
+    "account" | "option" | "credentials" | "sellerType" | "sellerDetails"
+  >("account");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [phoneCountryCode, setPhoneCountryCode] = useState("+234");
+  const [sellerType, setSellerType] = useState<SellerType | "">("");
+  const [vendorCredentials, setVendorCredentials] = useState<VendorCredentials | null>(null);
   const selectedAccountType = accountTypes.find(({ value }) => value === selectedAccount)!;
   const options = roleOptions[selectedAccount];
   const selectedRole = options?.find(({ value }) => value === selectedOption);
   const isBuyerSignup = selectedOption === "buyer";
+  const isVendorSignup = selectedOption === "seller";
+  const isMarketplaceRoleSignup = isBuyerSignup || isVendorSignup;
 
   function continueFromAccount() {
     if (roleOptions[selectedAccount]) {
@@ -247,6 +272,22 @@ export function SignUpForm() {
       return;
     }
     setStep("credentials");
+  }
+
+  function continueVendorCredentials(event: FormEvent<HTMLFormElement>) {
+    if (!isVendorSignup) return;
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    setVendorCredentials({
+      firstName: String(formData.get("firstName") ?? ""),
+      lastName: String(formData.get("lastName") ?? ""),
+      email: String(formData.get("email") ?? ""),
+      phone: String(formData.get("phone") ?? ""),
+      phoneCountryCode: String(formData.get("phoneCountryCode") ?? "+234"),
+      password: String(formData.get("password") ?? ""),
+      confirmPassword: String(formData.get("confirmPassword") ?? ""),
+    });
+    setStep("sellerType");
   }
 
   const credentialsDescription = selectedRole
@@ -261,11 +302,11 @@ export function SignUpForm() {
     <div className="signup-flow">
       <h1
         className={
-          step === "credentials" && isBuyerSignup
+          step === "credentials" && isMarketplaceRoleSignup
             ? "signup-shopper-heading"
             : step === "account"
             ? "signup-account-heading"
-            : step === "option"
+            : step === "option" || step === "sellerType" || step === "sellerDetails"
               ? "signup-option-heading"
               : undefined
         }
@@ -274,26 +315,46 @@ export function SignUpForm() {
         {step === "credentials"
           ? isBuyerSignup
             ? "Create Shopper Account"
+            : isVendorSignup
+              ? "Create Vendor Account"
             : "Create your account"
+          : step === "sellerType"
+            ? "Choose seller type"
+            : step === "sellerDetails"
+              ? sellerType === "individual"
+                ? "Individual seller details"
+                : "Registered business details"
           : step === "option"
             ? `How will you use ${selectedAccountType.label}?`
             : "How would you like to join?"}
       </h1>
       <p
-        className={`login-description${step === "credentials" && isBuyerSignup ? " signup-shopper-description" : step === "account" ? " signup-account-description" : step === "option" ? " signup-option-description" : ""}`}
+        className={`login-description${step === "credentials" && isMarketplaceRoleSignup ? " signup-shopper-description" : step === "account" ? " signup-account-description" : step === "option" || step === "sellerType" || step === "sellerDetails" ? " signup-option-description" : ""}`}
       >
         {step === "credentials"
           ? isBuyerSignup
             ? "Join SpaciMore to discover and shop from trusted sellers"
+            : isVendorSignup
+              ? "Create your account to start selling on SpaciMore"
             : credentialsDescription
+          : step === "sellerType"
+            ? "Choose how you will sell on the marketplace"
+            : step === "sellerDetails"
+              ? sellerType === "individual"
+                ? "Enter your legal details for your individual seller account"
+                : "Enter your registered business and contact details"
           : step === "option"
             ? "Choose the option that best describes you"
             : "Choose the account that fits you best"}
       </p>
 
       {step === "credentials" ? (
-        <>
-          <form action={action} className={`auth-form signup-credentials${isBuyerSignup ? " signup-buyer-credentials" : ""}`}>
+        <div className="signup-credentials-stage">
+          <form
+            action={isVendorSignup ? undefined : action}
+            className={`auth-form signup-credentials${isMarketplaceRoleSignup ? " signup-buyer-credentials" : ""}`}
+            onSubmit={isVendorSignup ? continueVendorCredentials : undefined}
+          >
             <input type="hidden" name="accountType" value={selectedAccount} />
             <input type="hidden" name="accountOption" value={selectedOption} />
             <button
@@ -304,28 +365,43 @@ export function SignUpForm() {
               <ChevronLeft aria-hidden="true" size={16} />
               {options ? "Change Selection" : "Go Back"}
             </button>
-            {isBuyerSignup && (
+            {isMarketplaceRoleSignup && (
               <div className="signup-name-fields">
                 <div className="field">
                   <label htmlFor="firstName">First Name</label>
-                  <input id="firstName" name="firstName" autoComplete="given-name" placeholder="Eg David" required />
+                  <input
+                    autoComplete="given-name"
+                    defaultValue={vendorCredentials?.firstName ?? ""}
+                    id="firstName"
+                    name="firstName"
+                    placeholder="Eg David"
+                    required
+                  />
                 </div>
                 <div className="field">
                   <label htmlFor="lastName">Last Name</label>
-                  <input id="lastName" name="lastName" autoComplete="family-name" placeholder="Eg Smith" required />
+                  <input
+                    autoComplete="family-name"
+                    defaultValue={vendorCredentials?.lastName ?? ""}
+                    id="lastName"
+                    name="lastName"
+                    placeholder="Eg Smith"
+                    required
+                  />
                 </div>
               </div>
             )}
-            <EmailField />
-            {isBuyerSignup && (
+            <EmailField defaultValue={vendorCredentials?.email ?? ""} />
+            {isMarketplaceRoleSignup && (
               <div className="field">
                 <label htmlFor="phone">Phone Number</label>
                 <div className="signup-phone-fields">
                   <select
                     aria-label="Country calling code"
                     autoComplete="tel-country-code"
-                    defaultValue="+234"
+                    onChange={(event) => setPhoneCountryCode(event.currentTarget.value)}
                     name="phoneCountryCode"
+                    value={vendorCredentials?.phoneCountryCode ?? phoneCountryCode}
                   >
                     {shopperCountryCodes.map(({ country, code }) => (
                       <option key={country} title={country} value={code}>{code}</option>
@@ -349,6 +425,7 @@ export function SignUpForm() {
             )}
             <PasswordField
               autoComplete="new-password"
+              initialValue={vendorCredentials?.password ?? ""}
               minLength={12}
               placeholder="At least 12 characters"
               showRequirements
@@ -356,6 +433,7 @@ export function SignUpForm() {
             <PasswordField
               autoComplete="new-password"
               id="confirmPassword"
+              initialValue={vendorCredentials?.confirmPassword ?? ""}
               label="Confirm password"
               minLength={12}
               placeholder="Re-enter your password"
@@ -366,7 +444,11 @@ export function SignUpForm() {
               type="submit"
               disabled={pending}
             >
-              {pending ? "Creating account..." : isBuyerSignup ? "Continue" : "Create account"}
+              {pending
+                ? "Creating account..."
+                : isBuyerSignup || isVendorSignup
+                  ? "Continue"
+                  : "Create account"}
               <ArrowRight aria-hidden="true" size={16} />
             </button>
           </form>
@@ -386,7 +468,206 @@ export function SignUpForm() {
               <FormFeedback state={socialState} />
             </div>
           )}
-        </>
+        </div>
+      ) : step === "sellerType" ? (
+        <div className="signup-selector seller-type-selector">
+          <button
+            className="signup-back signup-back-option"
+            onClick={() => setStep("credentials")}
+            type="button"
+          >
+            <ChevronLeft aria-hidden="true" size={16} />
+            Back to account details
+          </button>
+          <fieldset className="account-options">
+            <legend className="visually-hidden">Choose seller type</legend>
+            <label className={`account-option${sellerType === "individual" ? " is-selected" : ""}`}>
+              <input
+                checked={sellerType === "individual"}
+                name="sellerType"
+                onChange={() => setSellerType("individual")}
+                type="radio"
+                value="individual"
+              />
+              <span className="account-avatar" aria-hidden="true"><UserRound size={38} strokeWidth={1.7} /></span>
+              <span className="account-option-copy">
+                <span className="account-option-title">Individual Seller</span>
+                <span className="account-option-description">Sell as an individual or sole trader</span>
+              </span>
+              <span className="account-radio" aria-hidden="true" />
+            </label>
+            <label className={`account-option${sellerType === "business" ? " is-selected" : ""}`}>
+              <input
+                checked={sellerType === "business"}
+                name="sellerType"
+                onChange={() => setSellerType("business")}
+                type="radio"
+                value="business"
+              />
+              <span className="account-avatar" aria-hidden="true"><Building2 size={38} strokeWidth={1.7} /></span>
+              <span className="account-option-copy">
+                <span className="account-option-title">Registered Business</span>
+                <span className="account-option-description">Sell as a registered business or company</span>
+              </span>
+              <span className="account-radio" aria-hidden="true" />
+            </label>
+          </fieldset>
+          <button
+            className="button auth-submit signup-option-continue"
+            disabled={!sellerType}
+            onClick={() => setStep("sellerDetails")}
+            type="button"
+          >
+            Continue <ArrowRight aria-hidden="true" size={16} />
+          </button>
+        </div>
+      ) : step === "sellerDetails" && vendorCredentials && sellerType ? (
+        <form action={vendorAction} className="auth-form vendor-details-form">
+          <input name="firstName" type="hidden" value={vendorCredentials.firstName} />
+          <input name="lastName" type="hidden" value={vendorCredentials.lastName} />
+          <input name="email" type="hidden" value={vendorCredentials.email} />
+          <input name="phone" type="hidden" value={vendorCredentials.phone} />
+          <input name="phoneCountryCode" type="hidden" value={vendorCredentials.phoneCountryCode} />
+          <input name="password" type="hidden" value={vendorCredentials.password} />
+          <input name="confirmPassword" type="hidden" value={vendorCredentials.confirmPassword} />
+          <input name="sellerType" type="hidden" value={sellerType} />
+          <button
+            className="signup-back"
+            onClick={() => setStep("sellerType")}
+            type="button"
+          >
+            <ChevronLeft aria-hidden="true" size={16} />
+            Change seller type
+          </button>
+
+          {sellerType === "individual" ? (
+            <>
+              <div className="field">
+                <label htmlFor="legalFullName">Legal full name</label>
+                <input
+                  autoComplete="name"
+                  defaultValue={`${vendorCredentials.firstName} ${vendorCredentials.lastName}`}
+                  id="legalFullName"
+                  name="legalFullName"
+                  placeholder="Enter your legal name"
+                  required
+                />
+              </div>
+              <div className="field">
+                <label htmlFor="dateOfBirth">Date of birth <span>(optional)</span></label>
+                <input autoComplete="bday" id="dateOfBirth" name="dateOfBirth" type="date" />
+              </div>
+              <div className="signup-name-fields vendor-contact-fields">
+                <div className="field">
+                  <label htmlFor="vendorPhone">Phone</label>
+                  <input
+                    autoComplete="tel"
+                    id="vendorPhone"
+                    readOnly
+                    value={`${vendorCredentials.phoneCountryCode}${vendorCredentials.phone}`}
+                  />
+                </div>
+                <div className="field">
+                  <label htmlFor="vendorEmail">Email</label>
+                  <input autoComplete="email" id="vendorEmail" readOnly value={vendorCredentials.email} />
+                </div>
+              </div>
+              <div className="field">
+                <label htmlFor="identityDocument">National identity verification <span>(if requested)</span></label>
+                <input
+                  accept="application/pdf,image/jpeg,image/png"
+                  id="identityDocument"
+                  name="identityDocument"
+                  type="file"
+                />
+                <small className="vendor-upload-note">
+                  Optional. Upload only if verification is requested. PDF, PNG, or JPEG, up to 4 MB.
+                </small>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="field">
+                <label htmlFor="businessName">Registered business name</label>
+                <input autoComplete="organization" id="businessName" name="businessName" required />
+              </div>
+              <div className="signup-name-fields">
+                <div className="field">
+                  <label htmlFor="registrationNumber">Business registration number</label>
+                  <input id="registrationNumber" name="registrationNumber" required />
+                </div>
+                <div className="field">
+                  <label htmlFor="businessType">Business type</label>
+                  <select defaultValue="" id="businessType" name="businessType" required>
+                    <option disabled value="">Select type</option>
+                    <option value="sole_proprietorship">Sole proprietorship</option>
+                    <option value="limited_company">Limited company</option>
+                    <option value="partnership">Partnership</option>
+                    <option value="nonprofit">Non-profit</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+              </div>
+              <div className="field">
+                <label htmlFor="businessAddress">Business address</label>
+                <textarea autoComplete="street-address" id="businessAddress" name="businessAddress" required rows={3} />
+              </div>
+              <div className="field">
+                <label htmlFor="businessContactName">Business contact name</label>
+                <input
+                  autoComplete="name"
+                  defaultValue={`${vendorCredentials.firstName} ${vendorCredentials.lastName}`}
+                  id="businessContactName"
+                  name="businessContactName"
+                  required
+                />
+              </div>
+              <div className="signup-name-fields">
+                <div className="field">
+                  <label htmlFor="businessContactEmail">Business contact email</label>
+                  <input
+                    autoComplete="email"
+                    defaultValue={vendorCredentials.email}
+                    id="businessContactEmail"
+                    name="businessContactEmail"
+                    required
+                    type="email"
+                  />
+                </div>
+                <div className="field">
+                  <label htmlFor="businessContactPhone">Business contact phone</label>
+                  <input
+                    autoComplete="tel"
+                    defaultValue={`${vendorCredentials.phoneCountryCode}${vendorCredentials.phone}`}
+                    id="businessContactPhone"
+                    name="businessContactPhone"
+                    required
+                    type="tel"
+                  />
+                </div>
+              </div>
+              <div className="field">
+                <label htmlFor="businessDocument">Business registration documentation</label>
+                <input
+                  accept="application/pdf,image/jpeg,image/png"
+                  id="businessDocument"
+                  name="businessDocument"
+                  required
+                  type="file"
+                />
+                <small className="vendor-upload-note">
+                  Private upload. PDF, PNG, or JPEG, up to 4 MB.
+                </small>
+              </div>
+            </>
+          )}
+
+          <FormFeedback state={vendorState} />
+          <button className="button auth-submit signup-option-continue" disabled={vendorPending} type="submit">
+            {vendorPending ? "Creating vendor account..." : "Continue"}
+            <ArrowRight aria-hidden="true" size={16} />
+          </button>
+        </form>
       ) : (
         <>
           {step === "option" && (
