@@ -9,9 +9,13 @@ import { getSiteUrl } from "@/lib/supabase/env";
 
 const pendingEmailCookie = "pending_email_verification";
 const pendingEmailOtpTypeCookie = "pending_email_otp_type";
+const pendingPhoneCookie = "pending_phone_sign_in";
 const emailOtpLifetime = 60 * 60;
+const phoneOtpLifetime = 10 * 60;
 const vendorDocumentBucket = "vendor-verification-documents";
 const vendorDocumentMaxBytes = 4 * 1024 * 1024;
+const profilePhotoBucket = "profile-photos";
+const profilePhotoMaxBytes = 2 * 1024 * 1024;
 const vendorBusinessTypes = [
   "sole_proprietorship",
   "limited_company",
@@ -70,6 +74,27 @@ async function readPendingEmailVerification() {
     return null;
   }
   return { email, otpType };
+}
+
+async function setPendingPhoneSignIn(phone: string) {
+  const cookieStore = await cookies();
+  cookieStore.set(pendingPhoneCookie, phone, {
+    httpOnly: true,
+    maxAge: phoneOtpLifetime,
+    path: "/",
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+  });
+}
+
+async function readPendingPhoneSignIn() {
+  const cookieStore = await cookies();
+  return cookieStore.get(pendingPhoneCookie)?.value ?? null;
+}
+
+async function clearPendingPhoneSignIn() {
+  const cookieStore = await cookies();
+  cookieStore.delete(pendingPhoneCookie);
 }
 
 function readEmail(formData: FormData) {
@@ -144,6 +169,34 @@ async function getVendorDocumentExtension(file: File) {
   return null;
 }
 
+async function getProfilePhotoExtension(file: File) {
+  if (file.size > profilePhotoMaxBytes) {
+    return null;
+  }
+
+  const signature = new Uint8Array(await file.slice(0, 8).arrayBuffer());
+  const isPng =
+    file.type === "image/png" &&
+    signature.length === 8 &&
+    signature[0] === 0x89 &&
+    signature[1] === 0x50 &&
+    signature[2] === 0x4e &&
+    signature[3] === 0x47 &&
+    signature[4] === 0x0d &&
+    signature[5] === 0x0a &&
+    signature[6] === 0x1a &&
+    signature[7] === 0x0a;
+  const isJpeg =
+    file.type === "image/jpeg" &&
+    signature[0] === 0xff &&
+    signature[1] === 0xd8 &&
+    signature[2] === 0xff;
+
+  if (isPng) return "png";
+  if (isJpeg) return "jpg";
+  return null;
+}
+
 async function removeVendorDocuments(admin: ReturnType<typeof createAdminClient>, paths: string[]) {
   if (!paths.length) return null;
   const { error } = await admin.storage.from(vendorDocumentBucket).remove(paths);
@@ -194,6 +247,85 @@ export async function signInAction(
   redirect("/dashboard");
 }
 
+export async function startPhoneSignInAction(
+  _previousState: AuthActionState,
+  formData: FormData,
+): Promise<AuthActionState> {
+  const phoneCountryCode = readText(formData, "phoneCountryCode");
+  const phoneNumber = readText(formData, "phone").replace(/\D/g, "");
+  if (
+    !shopperCountryCodes.some((code) => code === phoneCountryCode) ||
+    !/^\d{7,10}$/.test(phoneNumber)
+  ) {
+    return { error: "Enter a valid phone number." };
+  }
+
+  const phone = `${phoneCountryCode}${phoneNumber}`;
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signInWithOtp({
+    phone,
+    options: { shouldCreateUser: false },
+  });
+  if (error) {
+    return { error: error.message };
+  }
+
+  await setPendingPhoneSignIn(phone);
+  return { message: "A sign-in code has been sent to your phone." };
+}
+
+export async function verifyPhoneSignInOtpAction(
+  _previousState: AuthActionState,
+  formData: FormData,
+): Promise<AuthActionState> {
+  const token = readText(formData, "token");
+  if (!/^\d{6}$/.test(token)) {
+    return { error: "Enter the 6-digit code from your phone." };
+  }
+
+  const phone = await readPendingPhoneSignIn();
+  if (!phone) {
+    return { error: "This sign-in request has expired. Please try again." };
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.verifyOtp({
+    phone,
+    token,
+    type: "sms",
+  });
+  if (error) {
+    return { error: "That code is invalid or expired. Check it and try again." };
+  }
+  if (!data.user) {
+    return { error: "We couldn't sign you in. Please request a new code." };
+  }
+
+  await clearPendingPhoneSignIn();
+  redirect("/dashboard");
+}
+
+export async function resendPhoneSignInOtpAction(
+  _previousState: AuthActionState,
+): Promise<AuthActionState> {
+  void _previousState;
+  const phone = await readPendingPhoneSignIn();
+  if (!phone) {
+    return { error: "This sign-in request has expired. Please try again." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signInWithOtp({
+    phone,
+    options: { shouldCreateUser: false },
+  });
+  if (error) {
+    return { error: error.message };
+  }
+
+  return { message: "A new sign-in code has been sent." };
+}
+
 export async function signUpAction(
   _previousState: AuthActionState,
   formData: FormData,
@@ -202,9 +334,17 @@ export async function signUpAction(
   const password = readPassword(formData);
   const confirmation = formData.get("confirmPassword");
   const firstNameValue = formData.get("firstName");
+  const middleName = readText(formData, "middleName");
   const lastNameValue = formData.get("lastName");
   const phoneValue = formData.get("phone");
   const phoneCountryCode = formData.get("phoneCountryCode");
+  const dateOfBirth = readText(formData, "dateOfBirth");
+  const gender = readText(formData, "gender");
+  const profilePhotoValue = formData.get("profilePhoto");
+  const profilePhoto =
+    profilePhotoValue instanceof File && profilePhotoValue.size > 0
+      ? profilePhotoValue
+      : null;
   const accountType = formData.get("accountType");
   const accountOption = formData.get("accountOption");
   const validAccountTypes = [
@@ -234,6 +374,29 @@ export async function signUpAction(
   const firstName = typeof firstNameValue === "string" ? firstNameValue.trim() : "";
   const lastName = typeof lastNameValue === "string" ? lastNameValue.trim() : "";
   const phone = typeof phoneValue === "string" ? phoneValue.trim() : "";
+  const profilePhotoExtension = profilePhoto
+    ? await getProfilePhotoExtension(profilePhoto)
+    : null;
+  if (profilePhoto && !profilePhotoExtension) {
+    return { error: "Profile photos must be a PNG or JPEG no larger than 2 MB." };
+  }
+  if (
+    accountRole === "buyer" &&
+    dateOfBirth &&
+    (!/^\d{4}-\d{2}-\d{2}$/.test(dateOfBirth) ||
+      Number.isNaN(Date.parse(`${dateOfBirth}T00:00:00Z`)) ||
+      new Date(`${dateOfBirth}T00:00:00Z`).toISOString().slice(0, 10) !== dateOfBirth ||
+      new Date(`${dateOfBirth}T00:00:00Z`) > new Date())
+  ) {
+    return { error: "Enter a valid date of birth that is not in the future." };
+  }
+  if (
+    accountRole === "buyer" &&
+    gender &&
+    !["female", "male", "other", "prefer_not_to_say"].includes(gender)
+  ) {
+    return { error: "Choose a valid gender option." };
+  }
   if (
     (accountRole === "buyer" || accountRole === "seller") &&
     (!firstName ||
@@ -254,6 +417,25 @@ export async function signUpAction(
     return { error: "Complete the seller registration details to create a vendor account." };
   }
 
+  let admin: ReturnType<typeof createAdminClient> | null = null;
+  let pendingProfilePhotoPath: string | null = null;
+  if (profilePhoto && profilePhotoExtension) {
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      return { error: "Profile photo uploads are not configured. Please contact support." };
+    }
+    admin = createAdminClient();
+    pendingProfilePhotoPath = `pending/${randomUUID()}.${profilePhotoExtension}`;
+    const { error: uploadError } = await admin.storage
+      .from(profilePhotoBucket)
+      .upload(pendingProfilePhotoPath, profilePhoto, {
+        contentType: profilePhoto.type,
+        upsert: false,
+      });
+    if (uploadError) {
+      return { error: `Could not upload your profile photo: ${uploadError.message}` };
+    }
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -266,9 +448,12 @@ export async function signUpAction(
         ...(accountRole === "buyer"
           ? {
               first_name: firstName,
+              middle_name: middleName || null,
               last_name: lastName,
               phone: `${phoneCountryCode}${phone}`,
               phone_country_code: phoneCountryCode,
+              date_of_birth: dateOfBirth || null,
+              gender: gender || null,
               account_verified: false,
             }
           : {}),
@@ -277,12 +462,74 @@ export async function signUpAction(
   });
 
   if (error) {
+    if (admin && pendingProfilePhotoPath) {
+      const { error: cleanupError } = await admin.storage
+        .from(profilePhotoBucket)
+        .remove([pendingProfilePhotoPath]);
+      return {
+        error: cleanupError
+          ? `${error.message} Profile photo cleanup failed: ${cleanupError.message}`
+          : error.message,
+      };
+    }
     return { error: error.message };
   }
 
   if (accountRole === "buyer") {
     if (!data.user) {
+      if (admin && pendingProfilePhotoPath) {
+        const { error: cleanupError } = await admin.storage
+          .from(profilePhotoBucket)
+          .remove([pendingProfilePhotoPath]);
+        if (cleanupError) {
+          return {
+            error: `We couldn't start verification, and profile photo cleanup failed: ${cleanupError.message}`,
+          };
+        }
+      }
       return { error: "We couldn't start verification. Please try signing up again." };
+    }
+    if (admin && pendingProfilePhotoPath && profilePhotoExtension) {
+      const finalProfilePhotoPath =
+        `${data.user.id}/${randomUUID()}.${profilePhotoExtension}`;
+      const { error: moveError } = await admin.storage
+        .from(profilePhotoBucket)
+        .move(pendingProfilePhotoPath, finalProfilePhotoPath);
+      if (moveError) {
+        const { error: cleanupError } = await admin.storage
+          .from(profilePhotoBucket)
+          .remove([pendingProfilePhotoPath]);
+        const deleteError = await deleteVendorAuthUser(admin, data.user.id);
+        const cleanupMessages = [cleanupError?.message, deleteError?.message].filter(Boolean);
+        return {
+          error: cleanupMessages.length
+            ? `Could not finalize your profile photo: ${moveError.message}. Cleanup failed: ${cleanupMessages.join("; ")}`
+            : `Could not finalize your profile photo: ${moveError.message}`,
+        };
+      }
+
+      const photoUrl = admin.storage
+        .from(profilePhotoBucket)
+        .getPublicUrl(finalProfilePhotoPath).data.publicUrl;
+      const { error: metadataError } = await admin.auth.admin.updateUserById(data.user.id, {
+        user_metadata: {
+          ...data.user.user_metadata,
+          profile_photo_path: finalProfilePhotoPath,
+          profile_photo_url: photoUrl,
+        },
+      });
+      if (metadataError) {
+        const { error: cleanupError } = await admin.storage
+          .from(profilePhotoBucket)
+          .remove([finalProfilePhotoPath]);
+        const deleteError = await deleteVendorAuthUser(admin, data.user.id);
+        const cleanupMessages = [cleanupError?.message, deleteError?.message].filter(Boolean);
+        return {
+          error: cleanupMessages.length
+            ? `Could not save your profile photo: ${metadataError.message}. Cleanup failed: ${cleanupMessages.join("; ")}`
+            : `Could not save your profile photo: ${metadataError.message}`,
+        };
+      }
     }
     let otpType: "signup" | "email" = "signup";
     if (data.session) {
@@ -663,6 +910,30 @@ export async function startSocialSignUpAction(
   }
   if (!data.url) {
     return { error: "Unable to start social sign-up. Please try again." };
+  }
+
+  redirect(data.url);
+}
+
+export async function startSocialSignInAction(
+  _previousState: AuthActionState,
+  formData: FormData,
+): Promise<AuthActionState> {
+  const provider = formData.get("provider");
+  if (provider !== "google" && provider !== "apple") {
+    return { error: "Choose a valid sign-in provider." };
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider,
+    options: { redirectTo: new URL("/auth/callback", getSiteUrl()).toString() },
+  });
+  if (error) {
+    return { error: error.message };
+  }
+  if (!data.url) {
+    return { error: "Unable to start social sign-in. Please try again." };
   }
 
   redirect(data.url);

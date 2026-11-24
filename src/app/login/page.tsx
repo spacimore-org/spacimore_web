@@ -1,4 +1,6 @@
+import Image from "next/image";
 import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 import { SignInForm } from "@/components/auth-forms";
 import { BrandLink } from "@/components/brand-link";
 import "./login.css";
@@ -16,11 +18,35 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     <main className="login-page sign-in-page">
       <section className="login-panel" aria-labelledby="login-title">
         <BrandLink className="login-brand" />
+        <header className="signin-header">
+          <Link aria-label="Back to home" className="signin-back" href="/">
+            <ChevronLeft aria-hidden="true" size={23} />
+          </Link>
+          <Image
+            alt="MarketPlace"
+            className="signin-marketplace-logo"
+            height={110}
+            priority
+            src="/header.png"
+            width={344}
+          />
+          <span aria-hidden="true" />
+        </header>
 
         <div className="login-content">
-          {/* <span className="login-eyebrow">A PLACE TO BEGIN AGAIN</span> */}
-          <h1 id="login-title">Welcome Back</h1>
-          <p className="login-description">Pick up where you left off.</p>
+          <Image
+            alt=""
+            aria-hidden="true"
+            className="signin-lock-art"
+            height={171}
+            priority
+            src="/padlock.png"
+            width={298}
+          />
+          <h1 id="login-title"><span>Welcome</span> Back</h1>
+          <p className="login-description">
+            Login in to your account to continue shopping, tracking orders and more
+          </p>
           {error === "callback" && (
             <p className="form-message form-message-error" role="alert">
               That confirmation link is invalid or has expired. Please try again.

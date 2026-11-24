@@ -5,38 +5,52 @@ import Link from "next/link";
 import { useActionState, useEffect, useRef, useState, type ClipboardEvent, type FormEvent } from "react";
 import {
   ArrowRight,
+  ArrowLeft,
   Building2,
+  Camera,
   Check,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
+  CalendarDays,
   Eye,
   EyeOff,
   Hammer,
+  LockKeyhole,
+  Mail,
+  Phone,
+  Share2,
   ShoppingCart,
   Store,
+  UsersRound,
   UserRound,
   Warehouse,
   Wrench,
   type LucideIcon,
 } from "lucide-react";
+import { BrandLink } from "@/components/brand-link";
 import {
   requestPasswordResetAction,
   resendEmailSignupOtpAction,
+  resendPhoneSignInOtpAction,
   signInAction,
+  startPhoneSignInAction,
+  startSocialSignInAction,
   signUpAction,
   startSocialSignUpAction,
   updatePasswordAction,
   type AuthActionState,
   verifyEmailSignupOtpAction,
+  verifyPhoneSignInOtpAction,
   vendorSignUpAction,
 } from "@/app/actions";
 
 const accountTypes = [
-  { value: "customer", label: "Marketplace", description: "Shop and buy varieties of products or sell products to customer.", image: "/business.png" },
-  { value: "service_provider", label: "Artisans", description: "Hire skilled & verified professionals or offer skilled services.", image: "/provider.png" },
-  { value: "storage", label: "Storage", description: "Rent space for your business or lease storage space to tenants.", image: "/storage.png" },
-  { value: "business", label: "Marketer", description: "Promote products/services and earn rewards on every sale.", image: "/affiliate.png" },
-  { value: "agent", label: "Agent", description: "List, promote and manage offerings on behalf of businesses or individuals.", image: "/agent.png" },
+  { value: "customer", label: "Marketplace", description: "Shop from stores or sell products to customers.", icon: Store },
+  { value: "service_provider", label: "Artisans", description: "Offer your services and get clients.", icon: Hammer },
+  { value: "storage", label: "Storage", description: "Offer your services and get clients.", icon: Warehouse },
+  { value: "business", label: "Marketers", description: "Offer your services and get clients.", icon: Share2 },
+  { value: "agent", label: "Agents", description: "List and manage properties for businesses or individuals.", icon: UsersRound },
 ] as const;
 
 type AccountType = (typeof accountTypes)[number]["value"];
@@ -183,41 +197,196 @@ function PasswordField({
 }
 
 export function SignInForm() {
-  const [state, action, pending] = useActionState(signInAction, initialState);
+  const [loginMethod, setLoginMethod] = useState<"email" | "phone">("email");
+  const [phoneStage, setPhoneStage] = useState<"number" | "otp">("number");
+  const [phoneCountryCode, setPhoneCountryCode] = useState("+234");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [emailState, emailAction, emailPending] = useActionState(signInAction, initialState);
+  const [phoneState, phoneAction, phonePending] = useActionState(
+    async (previousState: AuthActionState, formData: FormData) => {
+      const result = await startPhoneSignInAction(previousState, formData);
+      if (result.message) setPhoneStage("otp");
+      return result;
+    },
+    initialState,
+  );
+  const [verifyState, verifyAction, verifyPending] = useActionState(
+    verifyPhoneSignInOtpAction,
+    initialState,
+  );
+  const [resendState, resendAction, resendPending] = useActionState(
+    resendPhoneSignInOtpAction,
+    initialState,
+  );
+  const [socialState, socialAction, socialPending] = useActionState(
+    startSocialSignInAction,
+    initialState,
+  );
 
   return (
-    <form action={action} className="auth-form">
-      <EmailField />
-      <div className="field">
-        <label htmlFor="password">Password</label>
-        <div className="login-password-wrap">
-          <input
-            id="password"
-            name="password"
-            type={showPassword ? "text" : "password"}
-            autoComplete="current-password"
-            placeholder="At least 8 characters"
-            required
-          />
-          <button
-            aria-label={showPassword ? "Hide password" : "Show password"}
-            aria-pressed={showPassword}
-            className="login-password-toggle"
-            onClick={() => setShowPassword((visible) => !visible)}
-            type="button"
-          >
-            {showPassword ? <EyeOff aria-hidden="true" size={17} /> : <Eye aria-hidden="true" size={17} />}
-          </button>
-        </div>
-        <Link className="forgot-password-link" href="/forgot-password">Forgot password?</Link>
+    <div className="signin-form-wrap">
+      <div aria-label="Choose a sign-in method" className="signin-method-toggle" role="group">
+        <button
+          aria-pressed={loginMethod === "email"}
+          className={loginMethod === "email" ? "is-active" : ""}
+          onClick={() => setLoginMethod("email")}
+          type="button"
+        >
+          <Mail aria-hidden="true" size={17} />
+          <span className="visually-hidden">Email and password</span>
+        </button>
+        <button
+          aria-pressed={loginMethod === "phone"}
+          className={loginMethod === "phone" ? "is-active" : ""}
+          onClick={() => setLoginMethod("phone")}
+          type="button"
+        >
+          <Phone aria-hidden="true" size={17} />
+          <span className="visually-hidden">Phone number</span>
+        </button>
       </div>
-      <FormFeedback state={state} />
-      <button className="button auth-submit" type="submit" disabled={pending}>
-        {pending ? "Signing in..." : "Continue"}
-        <ChevronRight aria-hidden="true" size={18} />
-      </button>
-    </form>
+
+      {loginMethod === "email" ? (
+        <div className="signin-email-stage">
+          <form action={emailAction} className="auth-form signin-auth-form">
+            <div className="field">
+              <label htmlFor="email">Email Address <b>*</b></label>
+              <div className="signin-input-wrap">
+                <Mail aria-hidden="true" size={21} />
+                <input
+                  autoComplete="email"
+                  id="email"
+                  name="email"
+                  placeholder="Enter your email address"
+                  required
+                  type="email"
+                />
+              </div>
+            </div>
+            <div className="field">
+              <label htmlFor="password">Password <b>*</b></label>
+              <div className="signin-input-wrap">
+                <LockKeyhole aria-hidden="true" size={20} />
+                <input
+                  autoComplete="current-password"
+                  id="password"
+                  name="password"
+                  placeholder="Enter your password"
+                  required
+                  type={showPassword ? "text" : "password"}
+                />
+                <button
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  aria-pressed={showPassword}
+                  className="signin-password-toggle"
+                  onClick={() => setShowPassword((visible) => !visible)}
+                  type="button"
+                >
+                  {showPassword ? <EyeOff aria-hidden="true" size={20} /> : <Eye aria-hidden="true" size={20} />}
+                </button>
+              </div>
+            </div>
+            <div className="signin-form-options">
+              <label className="signin-remember">
+                <input type="checkbox" />
+                <span>Remember me</span>
+              </label>
+              <Link href="/forgot-password">Forgot Password?</Link>
+            </div>
+            <FormFeedback state={emailState} />
+            <button className="button auth-submit" type="submit" disabled={emailPending}>
+              {emailPending ? "Signing in..." : "Login in"}
+            </button>
+          </form>
+          <FormFeedback state={socialState} />
+          <div className="signin-divider"><span>or</span></div>
+          <form action={socialAction} className="signin-social-options">
+            <button className="signin-social-button" name="provider" value="google" type="submit" disabled={socialPending}>
+              <GoogleMark />
+              Continue with Google
+            </button>
+            <button className="signin-social-button" name="provider" value="apple" type="submit" disabled={socialPending}>
+              <AppleMark />
+              Continue with Apple
+            </button>
+          </form>
+        </div>
+      ) : phoneStage === "number" ? (
+        <form action={phoneAction} className="auth-form signin-auth-form">
+          <div className="field">
+            <label htmlFor="login-phone">Phone no</label>
+            <div className="signin-phone-input">
+              <select
+                aria-label="Phone country code"
+                name="phoneCountryCode"
+                onChange={(event) => setPhoneCountryCode(event.currentTarget.value)}
+                value={phoneCountryCode}
+              >
+                {shopperCountryCodes.map(({ code }) => (
+                  <option key={code} value={code}>{code}</option>
+                ))}
+              </select>
+              <input
+                autoComplete="tel-national"
+                id="login-phone"
+                inputMode="tel"
+                name="phone"
+                onChange={(event) => setPhoneNumber(event.currentTarget.value)}
+                placeholder="700 000 0000"
+                required
+                type="tel"
+                value={phoneNumber}
+              />
+              <Phone aria-hidden="true" size={18} />
+            </div>
+          </div>
+          <div className="signin-form-options">
+            <label className="signin-remember">
+              <input type="checkbox" />
+              <span>Remember me</span>
+            </label>
+          </div>
+          <FormFeedback state={phoneState} />
+          <button className="button auth-submit" type="submit" disabled={phonePending}>
+            {phonePending ? "Sending code..." : "Continue"}
+          </button>
+        </form>
+      ) : (
+        <div className="signin-phone-verification">
+          <FormFeedback state={phoneState} />
+          <form action={verifyAction} className="auth-form signin-auth-form">
+            <div className="field">
+              <label htmlFor="phone-signin-code">Verification code</label>
+              <input
+                autoComplete="one-time-code"
+                className="signin-code-input"
+                id="phone-signin-code"
+                inputMode="numeric"
+                maxLength={6}
+                name="token"
+                pattern="[0-9]{6}"
+                placeholder="Enter the 6-digit code"
+                required
+              />
+            </div>
+            <FormFeedback state={verifyState} />
+            <button className="button auth-submit" type="submit" disabled={verifyPending}>
+              {verifyPending ? "Verifying..." : "Verify and continue"}
+            </button>
+          </form>
+          <FormFeedback state={resendState} />
+          <div className="signin-otp-actions">
+            <button type="button" onClick={() => setPhoneStage("number")}>Change phone number</button>
+            <form action={resendAction}>
+              <button disabled={resendPending} type="submit">
+                {resendPending ? "Sending..." : "Resend code"}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -257,6 +426,11 @@ export function SignUpForm() {
   >("account");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [phoneCountryCode, setPhoneCountryCode] = useState("+234");
+  const [buyerSignupStage, setBuyerSignupStage] = useState(1);
+  const [profilePhotoName, setProfilePhotoName] = useState("");
+  const personalInfoRef = useRef<HTMLFieldSetElement>(null);
+  const contactInfoRef = useRef<HTMLFieldSetElement>(null);
+  const securityInfoRef = useRef<HTMLFieldSetElement>(null);
   const [sellerType, setSellerType] = useState<SellerType | "">("");
   const [vendorCredentials, setVendorCredentials] = useState<VendorCredentials | null>(null);
   const selectedAccountType = accountTypes.find(({ value }) => value === selectedAccount)!;
@@ -266,8 +440,10 @@ export function SignUpForm() {
   const isVendorSignup = selectedOption === "seller";
   const isMarketplaceRoleSignup = isBuyerSignup || isVendorSignup;
 
-  function continueFromAccount() {
-    if (roleOptions[selectedAccount]) {
+  function chooseAccount(accountType: AccountType) {
+    setSelectedAccount(accountType);
+    setSelectedOption(accountType === "customer" ? "buyer" : "");
+    if (roleOptions[accountType]) {
       setStep("option");
       return;
     }
@@ -290,6 +466,51 @@ export function SignUpForm() {
     setStep("sellerType");
   }
 
+  function continueBuyerSignup() {
+    const activeStep = [
+      personalInfoRef.current,
+      contactInfoRef.current,
+      securityInfoRef.current,
+    ][buyerSignupStage - 1];
+    const invalidControl =
+      activeStep?.querySelector<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(
+        ":invalid",
+      );
+    if (invalidControl) {
+      invalidControl.reportValidity();
+      return;
+    }
+    setBuyerSignupStage((current) => Math.min(current + 1, 3));
+  }
+
+  function validateBuyerSignup(event: FormEvent<HTMLFormElement>) {
+    if (!isBuyerSignup) return;
+    const stepRefs = [
+      personalInfoRef.current,
+      contactInfoRef.current,
+      securityInfoRef.current,
+    ];
+    const invalidStep = stepRefs.findIndex((fieldset) =>
+      fieldset?.querySelector(":invalid"),
+    );
+    if (invalidStep === -1) return;
+    event.preventDefault();
+    setBuyerSignupStage(invalidStep + 1);
+    requestAnimationFrame(() => {
+      const fieldset = [
+        personalInfoRef.current,
+        contactInfoRef.current,
+        securityInfoRef.current,
+      ][invalidStep];
+      const invalidControl =
+        fieldset?.querySelector<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(
+          ":invalid",
+        );
+      invalidControl?.focus();
+      invalidControl?.reportValidity();
+    });
+  }
+
   const credentialsDescription = selectedRole
     ? `You're joining as a ${selectedRole.label}`
     : selectedAccount === "business"
@@ -299,20 +520,54 @@ export function SignUpForm() {
         : `You're creating a ${selectedAccountType.label} account`;
 
   return (
-    <div className="signup-flow">
+    <div
+      className={`signup-flow${step === "account" ? " signup-account-stage" : ""}${step === "option" && selectedAccount === "customer" ? " signup-marketplace-option-stage" : ""}`}
+    >
+      {step === "account" && (
+        <header className="signup-account-header">
+          <span aria-hidden="true" />
+          <BrandLink className="signup-account-brand" />
+          <Link className="signup-account-back" href="/">
+            <ArrowLeft aria-hidden="true" size={17} />
+            <span>Back to home</span>
+          </Link>
+        </header>
+      )}
+      {step === "option" && selectedAccount === "customer" && (
+        <div className="signup-marketplace-visual">
+          <Image
+            alt="MarketPlace: Shop, Sell, Grow"
+            className="signup-marketplace-logo"
+            height={110}
+            src="/header.png"
+            width={344}
+          />
+          <Image
+            alt="A shopper carrying bags and using her phone"
+            className="signup-marketplace-illustration"
+            height={425}
+            src="/marketplace.png"
+            width={587}
+          />
+        </div>
+      )}
       <h1
         className={
           step === "credentials" && isMarketplaceRoleSignup
             ? "signup-shopper-heading"
             : step === "account"
             ? "signup-account-heading"
+            : step === "option" && selectedAccount === "customer"
+              ? "signup-marketplace-option-heading"
             : step === "option" || step === "sellerType" || step === "sellerDetails"
               ? "signup-option-heading"
               : undefined
         }
         id="signup-title"
       >
-        {step === "credentials"
+        {step === "option" && selectedAccount === "customer" ? (
+          <>How would you<br /><span>like to join?</span></>
+        ) : step === "credentials"
           ? isBuyerSignup
             ? "Create Shopper Account"
             : isVendorSignup
@@ -328,27 +583,293 @@ export function SignUpForm() {
             ? `How will you use ${selectedAccountType.label}?`
             : "How would you like to join?"}
       </h1>
-      <p
-        className={`login-description${step === "credentials" && isMarketplaceRoleSignup ? " signup-shopper-description" : step === "account" ? " signup-account-description" : step === "option" || step === "sellerType" || step === "sellerDetails" ? " signup-option-description" : ""}`}
-      >
-        {step === "credentials"
-          ? isBuyerSignup
-            ? "Join SpaciMore to discover and shop from trusted sellers"
-            : isVendorSignup
-              ? "Create your account to start selling on SpaciMore"
-            : credentialsDescription
-          : step === "sellerType"
-            ? "Choose how you will sell on the marketplace"
-            : step === "sellerDetails"
-              ? sellerType === "individual"
-                ? "Enter your legal details for your individual seller account"
-                : "Enter your registered business and contact details"
-          : step === "option"
-            ? "Choose the option that best describes you"
-            : "Choose the account that fits you best"}
-      </p>
+      {!(step === "option" && selectedAccount === "customer") && (
+        <p
+          className={`login-description${step === "credentials" && isMarketplaceRoleSignup ? " signup-shopper-description" : step === "account" ? " signup-account-description" : step === "option" || step === "sellerType" || step === "sellerDetails" ? " signup-option-description" : ""}`}
+        >
+          {step === "credentials"
+            ? isBuyerSignup
+              ? "Join SpaciMore to discover and shop from trusted sellers"
+              : isVendorSignup
+                ? "Create your account to start selling on SpaciMore"
+                : credentialsDescription
+            : step === "sellerType"
+              ? "Choose how you will sell on the marketplace"
+              : step === "sellerDetails"
+                ? sellerType === "individual"
+                  ? "Enter your legal details for your individual seller account"
+                  : "Enter your registered business and contact details"
+                : step === "option"
+                  ? "Choose the option that best describes you"
+                  : "Choose your role to get started"}
+        </p>
+      )}
 
       {step === "credentials" ? (
+        isBuyerSignup ? (
+          <div className="signup-shopper-wizard">
+            <div className="signup-shopper-header">
+              <button
+                aria-label={buyerSignupStage === 1 ? "Back to account type" : "Previous signup step"}
+                className="signup-shopper-back"
+                onClick={() => {
+                  if (buyerSignupStage > 1) {
+                    setBuyerSignupStage((current) => current - 1);
+                  } else {
+                    setStep("option");
+                  }
+                }}
+                type="button"
+              >
+                <ChevronLeft aria-hidden="true" size={26} />
+              </button>
+              <Image
+                alt="MarketPlace: Shop, Sell, Grow"
+                className="signup-shopper-logo"
+                height={110}
+                src="/header.png"
+                width={344}
+              />
+            </div>
+
+            <ol aria-label="Signup progress" className="signup-progress">
+              {["Personal Info", "Contact Info", "Security", "Complete"].map((label, index) => {
+                const stage = index + 1;
+                const isComplete = stage < buyerSignupStage;
+                const isCurrent = stage === buyerSignupStage;
+                return (
+                  <li
+                    aria-current={isCurrent ? "step" : undefined}
+                    className={isCurrent ? "is-current" : isComplete ? "is-complete" : ""}
+                    key={label}
+                  >
+                    <span className="signup-progress-marker">
+                      {isComplete ? <Check aria-hidden="true" size={15} strokeWidth={3} /> : stage}
+                    </span>
+                    <span className="signup-progress-label">{label}</span>
+                  </li>
+                );
+              })}
+            </ol>
+
+            <form
+              action={action}
+              className="signup-shopper-form"
+              noValidate
+              onSubmit={validateBuyerSignup}
+            >
+              <input name="accountType" type="hidden" value={selectedAccount} />
+              <input name="accountOption" type="hidden" value={selectedOption} />
+
+              <fieldset
+                className="signup-shopper-step"
+                hidden={buyerSignupStage !== 1}
+                ref={personalInfoRef}
+              >
+                <legend className="visually-hidden">Personal information</legend>
+                <h1 className="signup-shopper-title">
+                  Create <span>Your Account</span>
+                </h1>
+                <p className="signup-shopper-description">
+                  Let&apos;s get started. Tell us a little about yourself.
+                </p>
+
+                <div className="signup-shopper-field">
+                  <label htmlFor="buyerFirstName">First Name <b>*</b></label>
+                  <div className="signup-shopper-input">
+                    <UserRound aria-hidden="true" size={20} />
+                    <input
+                      autoComplete="given-name"
+                      defaultValue=""
+                      id="buyerFirstName"
+                      name="firstName"
+                      placeholder="Enter your first name"
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="signup-shopper-field">
+                  <label htmlFor="middleName">Middle Name <span>(Optional)</span></label>
+                  <div className="signup-shopper-input">
+                    <UserRound aria-hidden="true" size={20} />
+                    <input
+                      autoComplete="additional-name"
+                      id="middleName"
+                      name="middleName"
+                      placeholder="Enter your middle name"
+                    />
+                  </div>
+                </div>
+                <div className="signup-shopper-field">
+                  <label htmlFor="buyerLastName">Last Name <b>*</b></label>
+                  <div className="signup-shopper-input">
+                    <UserRound aria-hidden="true" size={20} />
+                    <input
+                      autoComplete="family-name"
+                      id="buyerLastName"
+                      name="lastName"
+                      placeholder="Enter your last name"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="signup-shopper-field">
+                  <label htmlFor="profilePhoto">Profile Photograph <span>(Optional)</span></label>
+                  <label className="signup-photo-upload" htmlFor="profilePhoto">
+                    <input
+                      accept="image/jpeg,image/png"
+                      id="profilePhoto"
+                      name="profilePhoto"
+                      onChange={(event) => {
+                        const file = event.currentTarget.files?.[0];
+                        setProfilePhotoName(file?.name ?? "");
+                      }}
+                      type="file"
+                    />
+                    <span className="signup-photo-camera"><Camera aria-hidden="true" size={23} /></span>
+                    <strong>{profilePhotoName || "Tap to upload photo"}</strong>
+                    <span>JPG, PNG (Max 2MB)</span>
+                  </label>
+                </div>
+
+                <div className="signup-shopper-selects">
+                  <div className="signup-shopper-field">
+                    <label htmlFor="dateOfBirth">Date of Birth <span>(Optional)</span></label>
+                    <div className="signup-shopper-input signup-shopper-select">
+                      <CalendarDays aria-hidden="true" size={19} />
+                      <input autoComplete="bday" id="dateOfBirth" name="dateOfBirth" type="date" />
+                      <ChevronDown aria-hidden="true" size={18} />
+                    </div>
+                  </div>
+                  <div className="signup-shopper-field">
+                    <label htmlFor="gender">Gender <span>(Optional)</span></label>
+                    <div className="signup-shopper-input signup-shopper-select">
+                      <UserRound aria-hidden="true" size={19} />
+                      <select defaultValue="" id="gender" name="gender">
+                        <option disabled value="">Select gender</option>
+                        <option value="female">Female</option>
+                        <option value="male">Male</option>
+                        <option value="other">Other</option>
+                        <option value="prefer_not_to_say">Prefer not to say</option>
+                      </select>
+                      <ChevronDown aria-hidden="true" size={18} />
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
+
+              <fieldset
+                className="signup-shopper-step"
+                hidden={buyerSignupStage !== 2}
+                ref={contactInfoRef}
+              >
+                <legend className="visually-hidden">Contact information</legend>
+                <h1 className="signup-shopper-title">Contact <span>Info</span></h1>
+                <p className="signup-shopper-description">How can we reach you?</p>
+                <EmailField />
+                <div className="field">
+                  <label htmlFor="phone">Phone Number <b>*</b></label>
+                  <div className="signup-phone-fields">
+                    <select
+                      aria-label="Country calling code"
+                      autoComplete="tel-country-code"
+                      name="phoneCountryCode"
+                      onChange={(event) => setPhoneCountryCode(event.currentTarget.value)}
+                      value={phoneCountryCode}
+                    >
+                      {shopperCountryCodes.map(({ country, code }) => (
+                        <option key={country} title={country} value={code}>{code}</option>
+                      ))}
+                    </select>
+                    <input
+                      autoComplete="tel-national"
+                      id="phone"
+                      inputMode="numeric"
+                      maxLength={10}
+                      name="phone"
+                      onChange={(event) => setPhoneNumber(event.currentTarget.value.replace(/\D/g, "").slice(0, 10))}
+                      pattern="[0-9]{7,10}"
+                      placeholder="Phone number"
+                      required
+                      type="tel"
+                      value={phoneNumber}
+                    />
+                  </div>
+                </div>
+              </fieldset>
+
+              <fieldset
+                className="signup-shopper-step"
+                hidden={buyerSignupStage !== 3}
+                ref={securityInfoRef}
+              >
+                <legend className="visually-hidden">Security</legend>
+                <h1 className="signup-shopper-title">Secure <span>Your Account</span></h1>
+                <p className="signup-shopper-description">Create a password to protect your account.</p>
+                <PasswordField
+                  autoComplete="new-password"
+                  minLength={12}
+                  placeholder="At least 12 characters"
+                  showRequirements
+                />
+                <PasswordField
+                  autoComplete="new-password"
+                  id="confirmPassword"
+                  label="Confirm password"
+                  minLength={12}
+                  placeholder="Re-enter your password"
+                />
+                <FormFeedback state={state} />
+              </fieldset>
+
+              {buyerSignupStage < 3 ? (
+                <button
+                  className="button auth-submit signup-shopper-submit"
+                  onClick={continueBuyerSignup}
+                  type="button"
+                >
+                  Continue <ArrowRight aria-hidden="true" size={18} />
+                </button>
+              ) : (
+                <button
+                  className="button auth-submit signup-shopper-submit"
+                  disabled={pending}
+                  type="submit"
+                >
+                  {pending ? "Creating account..." : "Continue"}
+                  <ArrowRight aria-hidden="true" size={18} />
+                </button>
+              )}
+              {buyerSignupStage === 1 && (
+                <button
+                  className="signup-shopper-skip"
+                  onClick={continueBuyerSignup}
+                  type="button"
+                >
+                  Skip for now
+                </button>
+              )}
+            </form>
+
+            {buyerSignupStage === 3 && (
+              <div className="signup-social">
+                <div className="signup-social-divider"><span>or continue with</span></div>
+                <form action={socialAction} className="signup-social-options">
+                  <button className="signup-social-button" name="provider" value="google" type="submit" disabled={socialPending}>
+                    <GoogleMark />
+                    {socialPending ? "Connecting..." : "Continue with Google"}
+                  </button>
+                  <button className="signup-social-button" name="provider" value="apple" type="submit" disabled={socialPending}>
+                    <AppleMark />
+                    {socialPending ? "Connecting..." : "Continue with Apple"}
+                  </button>
+                </form>
+                <FormFeedback state={socialState} />
+              </div>
+            )}
+          </div>
+        ) : (
         <div className="signup-credentials-stage">
           <form
             action={isVendorSignup ? undefined : action}
@@ -469,6 +990,7 @@ export function SignUpForm() {
             </div>
           )}
         </div>
+        )
       ) : step === "sellerType" ? (
         <div className="signup-selector seller-type-selector">
           <button
@@ -683,29 +1205,29 @@ export function SignUpForm() {
               Go Back
             </button>
           )}
-          <div className="signup-selector">
-            <fieldset className="account-options">
+          <div className={`signup-selector${step === "option" && selectedAccount === "customer" ? " marketplace-option-selector" : ""}`}>
+            <fieldset className={`account-options${step === "option" && selectedAccount === "customer" ? " marketplace-account-options" : ""}`}>
               <legend className="visually-hidden">
                 {step === "option" ? `Choose a ${selectedAccountType.label} option` : "Choose an account type"}
               </legend>
               {step === "account"
-                ? accountTypes.map(({ value, label, description, image }) => (
+                ? accountTypes.map(({ value, label, description, icon: Icon }) => (
                     <label
                       className={`account-option${selectedAccount === value ? " is-selected" : ""}`}
                       key={value}
+                      onClick={() => {
+                        if (selectedAccount === value) chooseAccount(value);
+                      }}
                     >
                       <input
                         checked={selectedAccount === value}
                         name="accountTypeChoice"
-                        onChange={() => {
-                          setSelectedAccount(value);
-                          setSelectedOption("");
-                        }}
+                        onChange={() => chooseAccount(value)}
                         type="radio"
                         value={value}
                       />
                       <span className="account-avatar" aria-hidden="true">
-                        <Image src={image} alt="" width={512} height={512} />
+                        <Icon aria-hidden="true" size={29} strokeWidth={1.7} />
                       </span>
                       <span className="account-option-copy">
                         <span className="account-option-title">{label}</span>
@@ -727,27 +1249,55 @@ export function SignUpForm() {
                         value={value}
                       />
                       <span className="account-avatar" aria-hidden="true">
-                        <Icon size={38} strokeWidth={1.7} />
+                        {step === "option" && selectedAccount === "customer" ? (
+                          <Image
+                            alt=""
+                            height={250}
+                            src={value === "buyer" ? "/userr.png" : "/shop (1).png"}
+                            width={250}
+                          />
+                        ) : (
+                          <Icon size={38} strokeWidth={1.7} />
+                        )}
                       </span>
                       <span className="account-option-copy">
-                        <span className="account-option-title">{label}</span>
-                        <span className="account-option-description">{description}</span>
+                        <span className="account-option-title">
+                          {step === "option" && selectedAccount === "customer" && value === "buyer"
+                            ? "Customer"
+                            : label}
+                        </span>
+                        <span className="account-option-description">
+                          {step === "option" && selectedAccount === "customer"
+                            ? value === "buyer"
+                              ? "Shop your favourite products, track orders and more."
+                              : "Sell your products and grow your business."
+                            : description}
+                        </span>
                       </span>
-                      <span className="account-radio" aria-hidden="true" />
+                      <span className="account-radio" aria-hidden="true">
+                        {step === "option" &&
+                          selectedAccount === "customer" &&
+                          selectedOption === value && (
+                            <Check size={18} strokeWidth={3} />
+                          )}
+                      </span>
                     </label>
                   ))}
             </fieldset>
-            <button
-              className={`button auth-submit${step === "account" ? " signup-main-continue" : step === "option" ? " signup-option-continue" : ""}`}
-              onClick={step === "account" ? continueFromAccount : () => setStep("credentials")}
-              disabled={step === "option" && !selectedOption}
-              type="button"
-            >
-              Continue
-              {step === "account"
-                ? <ChevronRight aria-hidden="true" size={16} />
-                : <ArrowRight aria-hidden="true" size={16} />}
-            </button>
+            {step !== "account" && (
+              <button
+                className={`button auth-submit${step === "option" ? " signup-option-continue" : ""}`}
+                onClick={() => setStep("credentials")}
+                disabled={step === "option" && !selectedOption}
+                type="button"
+              >
+                Continue
+                <ArrowRight aria-hidden="true" size={16} />
+              </button>
+            )}
+            {step === "option" && selectedAccount === "customer" && (
+            <Link className="signup-marketplace-later" href="/">Maybe later</Link>
+            )}
           </div>
         </>
       )}

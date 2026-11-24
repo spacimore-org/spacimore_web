@@ -8,7 +8,6 @@ import {
   BadgeCheck,
   BriefcaseBusiness,
   ChartNoAxesColumnIncreasing,
-  ChevronDown,
   ChevronRight,
   Gift,
   Heart,
@@ -309,10 +308,17 @@ function MarketplaceSearchOverlay({
   );
 }
 
-function MobileMarketplaceMenu({ onClose }: { onClose: () => void }) {
+function MobileMarketplaceMenu({
+  isOpen,
+  onClose,
+  signedInUser,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  signedInUser?: { displayName: string };
+}) {
   useEffect(() => {
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    if (!isOpen) return;
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") onClose();
@@ -320,25 +326,36 @@ function MobileMarketplaceMenu({ onClose }: { onClose: () => void }) {
 
     document.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.body.style.overflow = originalOverflow;
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [onClose]);
+  }, [isOpen, onClose]);
 
   return (
-    <div className="mobile-market-menu">
-      <div className="mobile-market-menu-header">
-        <BrandLink className="mobile-menu-brand" />
-        <button aria-label="Close menu" className="mobile-menu-close" onClick={onClose} type="button">
-          <X aria-hidden="true" size={23} />
-        </button>
-      </div>
+    <div
+      aria-hidden={!isOpen}
+      className={`mobile-market-menu${isOpen ? " is-open" : ""}`}
+    >
       <nav aria-label="Mobile main navigation" className="mobile-market-menu-links">
-        <Link href="/" onClick={onClose}>Marketplace <ChevronRight aria-hidden="true" size={20} /></Link>
-        <a href="#services" onClick={onClose}>Services <ChevronRight aria-hidden="true" size={20} /></a>
-        <a href="#storage" onClick={onClose}>Storage <ChevronRight aria-hidden="true" size={20} /></a>
-        <a href="#earn-with-us" onClick={onClose}>Earning Rewards <ChevronRight aria-hidden="true" size={20} /></a>
+        <Link href="/" onClick={onClose}>Marketplace</Link>
+        <a href="#services" onClick={onClose}>Services</a>
+        <a href="#storage" onClick={onClose}>Storage</a>
+        <a href="#earn-with-us" onClick={onClose}>Earnings</a>
       </nav>
+      <div className="mobile-market-menu-actions">
+        {signedInUser ? (
+          <>
+            <Link className="mobile-market-login" href="/dashboard" onClick={onClose}>My Account</Link>
+            <form action={signOutAction}>
+              <button className="mobile-market-get-started" type="submit">Sign Out</button>
+            </form>
+          </>
+        ) : (
+          <>
+            <Link className="mobile-market-login" href="/login" onClick={onClose}>Log In</Link>
+            <Link className="mobile-market-get-started" href="/signup" onClick={onClose}>Get Started</Link>
+          </>
+        )}
+      </div>
     </div>
   );
 }
@@ -404,16 +421,19 @@ export function MarketplaceHome({
       <header className="market-header">
         <div className="market-container market-header-inner">
           <div className="market-header-brand-group">
+            <BrandLink className="market-brand" />
             <button
               aria-expanded={showMobileMenu}
-              aria-label="Open menu"
+              aria-label={showMobileMenu ? "Close menu" : "Open menu"}
               className="mobile-menu-toggle"
-              onClick={() => setShowMobileMenu(true)}
+              onClick={() => setShowMobileMenu((isOpen) => !isOpen)}
               type="button"
             >
-              <Menu aria-hidden="true" size={23} />
+              <span className="mobile-menu-icon" aria-hidden="true">
+                <Menu size={23} />
+                <X size={23} />
+              </span>
             </button>
-            <BrandLink className="market-brand" />
           </div>
           <nav className="market-primary-nav" aria-label="Main navigation">
             <Link href="/">Marketplace</Link>
@@ -422,27 +442,6 @@ export function MarketplaceHome({
             <a href="#earn-with-us">Earn with Us</a>
           </nav>
           <nav className="market-account-actions" aria-label="Account">
-            <label className="market-location">
-              <MapPin aria-hidden="true" size={16} />
-              <select aria-label="Choose your location" defaultValue="">
-                <option disabled value="">Choose location</option>
-                <option value="lagos">Lagos</option>
-                <option value="abuja">Abuja</option>
-                <option value="port-harcourt">Port Harcourt</option>
-                <option value="ibadan">Ibadan</option>
-                <option value="kano">Kano</option>
-              </select>
-              <ChevronDown aria-hidden="true" size={14} />
-            </label>
-            <button
-              aria-expanded={showSearch}
-              aria-label="Search the marketplace"
-              className="header-search-toggle"
-              onClick={() => setShowSearch(true)}
-              type="button"
-            >
-              <Search aria-hidden="true" size={20} />
-            </button>
             {signedInUser && (
               <button aria-label={`Cart, ${cartCount} items`} className="market-cart-button" type="button">
                 <ShoppingCart aria-hidden="true" size={20} />
@@ -460,13 +459,20 @@ export function MarketplaceHome({
                 </form>
               </>
             ) : (
-              <Link aria-label="Sign in" className="market-join-button market-signin-button" href="/login">
-                <UserRound aria-hidden="true" size={18} />
-                <span>Sign In</span>
-              </Link>
+              <>
+                <Link className="market-login-link" href="/login">Log In</Link>
+                <Link className="market-join-button market-get-started-button" href="/signup">
+                  Get Started
+                </Link>
+              </>
             )}
           </nav>
         </div>
+        <MobileMarketplaceMenu
+          isOpen={showMobileMenu}
+          onClose={closeMobileMenu}
+          signedInUser={signedInUser}
+        />
       </header>
 
       {showSearch && (
@@ -477,8 +483,6 @@ export function MarketplaceHome({
           query={searchQuery}
         />
       )}
-      {showMobileMenu && <MobileMarketplaceMenu onClose={closeMobileMenu} />}
-
       <main className="market-container market-main">
         <section className="market-hero-layout" aria-label="Featured offers">
           <div className="market-promo">
