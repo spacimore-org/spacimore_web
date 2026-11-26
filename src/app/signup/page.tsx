@@ -3,7 +3,16 @@ import { SignUpForm } from "@/components/auth-forms";
 import { BrandLink } from "@/components/brand-link";
 import "../login/login.css";
 
-export default function SignupPage() {
+export const instant = false;
+
+export default async function SignupPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ role?: string }>;
+}) {
+  const { role } = await searchParams;
+  const initialRole = role === "buyer" || role === "seller" ? role : undefined;
+
   return (
     <main className="login-page signup-page">
       <section className="login-panel" aria-labelledby="signup-title">
@@ -11,9 +20,9 @@ export default function SignupPage() {
 
         <div className="login-content">
           <span className="login-eyebrow">A GOOD PLACE TO START</span>
-          <SignUpForm />
+          <SignUpForm initialRole={initialRole} />
           <p className="auth-switch">
-            Already have an account? <Link href="/login">Sign in</Link>
+            Already have an account? <Link href="/login">Log in</Link>
           </p>
         </div>
 

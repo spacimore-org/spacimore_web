@@ -665,54 +665,17 @@
 }
 
 .deal-tile-shop {
-  align-items: flex-start;
-  aspect-ratio: 1 / 0.36;
-  background: #fff;
-  border: 0;
-  color: #222;
-  flex-direction: column;
-  gap: 2px;
-  min-height: 76px;
-  justify-content: center;
-  padding: 4px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
-}
-
-.deal-tile-shop-icon {
-  align-items: center;
+  aspect-ratio: 610 / 536;
   background: transparent;
-  color: #222;
-  display: inline-flex;
-  flex: 0 0 27px;
-  height: 27px;
-  justify-content: center;
-  width: 27px;
-  transform: translateY(-4px);
+  border: 0;
+  box-shadow: none;
+  padding: 0;
 }
 
-.deal-tile-shop-icon svg {
-  height: 24.75px;
-  width: 24.75px;
-}
-
-.deal-tile-shop-copy {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  min-width: 0;
-  transform: translateY(-4px);
-}
-
-.deal-tile-shop-copy > strong {
-  font-size: 18.816px;
-  font-weight: 650;
-  line-height: 1.15;
-}
-
-.deal-tile-shop-caption {
-  color: #555;
-  font-size: 12.8px;
-  line-height: 1.15;
+.deal-tile-shop img {
+  display: block;
+  height: auto;
+  width: 100%;
 }
 
 .deal-tile-hot {
@@ -2118,21 +2081,25 @@
     font-size: 14px;
   }
 
+  .nearby-product-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
   .nearby-product-location {
-    font-size: 11px;
+    font-size: 9.35px;
   }
 
   .nearby-verified,
   .nearby-product-bottom del {
-    font-size: 10px;
+    font-size: 8.5px;
   }
 
   .nearby-product-name {
-    font-size: 14px;
+    font-size: 11.9px;
   }
 
   .nearby-product-bottom strong {
-    font-size: 13px;
+    font-size: 11.05px;
   }
 
   .storage-label {
@@ -2704,29 +2671,7 @@
   }
 
   .deal-tile-shop {
-    aspect-ratio: 1 / 0.55;
-    gap: 2px;
-    min-height: 88px;
-    padding: 6px;
-  }
-
-  .deal-tile-shop-icon {
-    flex-basis: 22.5px;
-    height: 22.5px;
-    width: 22.5px;
-  }
-
-  .deal-tile-shop-icon svg {
-    height: 21.375px;
-    width: 21.375px;
-  }
-
-  .deal-tile-shop-copy > strong {
-    font-size: 16.128px;
-  }
-
-  .deal-tile-shop-caption {
-    font-size: 12.096px;
+    aspect-ratio: 610 / 536;
   }
 
   .deal-tile-heading {

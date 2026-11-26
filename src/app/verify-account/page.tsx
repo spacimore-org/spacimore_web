@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
+import { isAuthSessionMissingError } from "@supabase/supabase-js";
 import { VerifyAccountForm } from "@/components/auth-forms";
 import { BrandLink } from "@/components/brand-link";
+import { createClient } from "@/lib/supabase/server";
 import "../login/login.css";
 
 export const instant = false;
@@ -15,6 +17,31 @@ function maskEmail(email: string) {
 export default async function VerifyAccountPage() {
   const cookieStore = await cookies();
   const email = cookieStore.get("pending_email_verification")?.value;
+  const isPendingBuyerSignup = cookieStore.get("pending_buyer_signup")?.value === "true";
+  if (email && isPendingBuyerSignup) {
+    return (
+      <main className="signup-verification-page">
+        <VerifyAccountForm buyerVerification maskedEmail={maskEmail(email)} />
+      </main>
+    );
+  }
+
+  if (!email) {
+    const supabase = await createClient();
+    const { data, error } = await supabase.auth.getUser();
+    if (error && !isAuthSessionMissingError(error)) {
+      throw error;
+    }
+    const user = data.user;
+    if (user?.user_metadata.account_role === "buyer" &&
+        user.user_metadata.account_verified === false && user.email) {
+      return (
+        <main className="signup-verification-page">
+          <VerifyAccountForm buyerVerification needsEmailCode maskedEmail={maskEmail(user.email)} />
+        </main>
+      );
+    }
+  }
 
   return (
     <main className="login-page sign-in-page verify-page">

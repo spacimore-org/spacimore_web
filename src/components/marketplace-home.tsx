@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { BrandLink } from "@/components/brand-link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { signOutAction } from "@/app/actions";
@@ -17,7 +18,6 @@ import {
   Search,
   ShoppingCart,
   Star,
-  Store,
   UserRound,
   X,
   Warehouse,
@@ -450,6 +450,9 @@ export function MarketplaceHome({
             )}
             {signedInUser ? (
               <>
+                <Link className="market-join-button market-dashboard-button" href="/dashboard/account/overview">
+                  My Dashboard
+                </Link>
                 <Link className="market-join-button market-user-button" href="/dashboard">
                   <UserRound aria-hidden="true" size={18} />
                   <span>Hi, {signedInUser.displayName}</span>
@@ -527,47 +530,22 @@ export function MarketplaceHome({
 
         <nav className="market-quick-links" aria-label="Featured promotions">
           <a className="deal-tile deal-tile-shop" href="#popular">
-            <span className="deal-tile-shop-icon"><Store aria-hidden="true" size={32} /></span>
-            <span className="deal-tile-shop-copy">
-              <strong>Shop</strong>
-              <span className="deal-tile-shop-caption">Great Local Product</span>
-            </span>
+            <Image alt="Shop: Great Local Products" height={536} src="/shopper.png" width={610} />
           </a>
           <a className="deal-tile deal-tile-shop" href="#popular">
-            <span className="deal-tile-shop-icon"><Store aria-hidden="true" size={32} /></span>
-            <span className="deal-tile-shop-copy">
-              <strong>Book A Pro</strong>
-              <span className="deal-tile-shop-caption">Book Help Nearby</span>
-            </span>
+            <Image alt="Book A Pro: Great Local Products" height={536} src="/book a pro.png" width={610} />
           </a>
           <a className="deal-tile deal-tile-shop" href="#popular">
-            <span className="deal-tile-shop-icon"><Store aria-hidden="true" size={32} /></span>
-            <span className="deal-tile-shop-copy">
-              <strong>Find Storage</strong>
-              <span className="deal-tile-shop-caption">Space When You Need It</span>
-            </span>
+            <Image alt="Find Storage: Space when you need it" height={536} src="/find storage.png" width={610} />
           </a>
           <a className="deal-tile deal-tile-shop" href="#popular">
-            <span className="deal-tile-shop-icon"><Store aria-hidden="true" size={32} /></span>
-            <span className="deal-tile-shop-copy">
-              <strong>Agents</strong>
-              <span className="deal-tile-shop-caption">Products and inspections</span>
-            </span>
+            <Image alt="Agents: Products and inspections" height={536} src="/agents.png" width={610} />
           </a>
-         <a className="deal-tile deal-tile-shop" href="#popular">
-            <span className="deal-tile-shop-icon"><Store aria-hidden="true" size={32} /></span>
-            <span className="deal-tile-shop-copy">
-              <strong>Earn Rewards</strong>
-              <span className="deal-tile-shop-caption">Share and Get Paid</span>
-            </span>
-          </a>
-
           <a className="deal-tile deal-tile-shop" href="#popular">
-            <span className="deal-tile-shop-icon"><Store aria-hidden="true" size={32} /></span>
-            <span className="deal-tile-shop-copy">
-              <strong>Spacekoin</strong>
-              <span className="deal-tile-shop-caption">Voucher and coins</span>
-            </span>
+            <Image alt="Earn Rewards: Share and get paid" height={536} src="/earn rewards.png" width={610} />
+          </a>
+          <a className="deal-tile deal-tile-shop" href="#popular">
+            <Image alt="Spacekoins: Vouchers and coins" height={536} src="/spacekoin.png" width={610} />
           </a>
         </nav>
 

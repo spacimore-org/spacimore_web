@@ -9,16 +9,13 @@ import {
   Building2,
   Camera,
   Check,
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
-  CalendarDays,
   Eye,
   EyeOff,
   Hammer,
   LockKeyhole,
   Mail,
-  Phone,
   Share2,
   ShoppingCart,
   Store,
@@ -29,19 +26,17 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { BrandLink } from "@/components/brand-link";
+import { getResetPasswordRequirements } from "@/lib/reset-password";
 import {
   requestPasswordResetAction,
   resendEmailSignupOtpAction,
-  resendPhoneSignInOtpAction,
   signInAction,
-  startPhoneSignInAction,
   startSocialSignInAction,
   signUpAction,
   startSocialSignUpAction,
   updatePasswordAction,
   type AuthActionState,
   verifyEmailSignupOtpAction,
-  verifyPhoneSignInOtpAction,
   vendorSignUpAction,
 } from "@/app/actions";
 
@@ -197,28 +192,10 @@ function PasswordField({
 }
 
 export function SignInForm() {
-  const [loginMethod, setLoginMethod] = useState<"email" | "phone">("email");
-  const [phoneStage, setPhoneStage] = useState<"number" | "otp">("number");
-  const [phoneCountryCode, setPhoneCountryCode] = useState("+234");
-  const [phoneNumber, setPhoneNumber] = useState("");
+  const [loginRole, setLoginRole] = useState<"buyer" | "seller">("buyer");
+  const [remember, setRemember] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [emailState, emailAction, emailPending] = useActionState(signInAction, initialState);
-  const [phoneState, phoneAction, phonePending] = useActionState(
-    async (previousState: AuthActionState, formData: FormData) => {
-      const result = await startPhoneSignInAction(previousState, formData);
-      if (result.message) setPhoneStage("otp");
-      return result;
-    },
-    initialState,
-  );
-  const [verifyState, verifyAction, verifyPending] = useActionState(
-    verifyPhoneSignInOtpAction,
-    initialState,
-  );
-  const [resendState, resendAction, resendPending] = useActionState(
-    resendPhoneSignInOtpAction,
-    initialState,
-  );
   const [socialState, socialAction, socialPending] = useActionState(
     startSocialSignInAction,
     initialState,
@@ -226,28 +203,27 @@ export function SignInForm() {
 
   return (
     <div className="signin-form-wrap">
-      <div aria-label="Choose a sign-in method" className="signin-method-toggle" role="group">
+      <div aria-label="Choose account type" className="signin-method-toggle" role="group">
         <button
-          aria-pressed={loginMethod === "email"}
-          className={loginMethod === "email" ? "is-active" : ""}
-          onClick={() => setLoginMethod("email")}
+          aria-pressed={loginRole === "seller"}
+          className={loginRole === "seller" ? "is-active" : ""}
+          onClick={() => setLoginRole("seller")}
           type="button"
         >
-          <Mail aria-hidden="true" size={17} />
-          <span className="visually-hidden">Email and password</span>
+          <Store aria-hidden="true" size={19} />
+          Vendor Login
         </button>
         <button
-          aria-pressed={loginMethod === "phone"}
-          className={loginMethod === "phone" ? "is-active" : ""}
-          onClick={() => setLoginMethod("phone")}
+          aria-pressed={loginRole === "buyer"}
+          className={loginRole === "buyer" ? "is-active" : ""}
+          onClick={() => setLoginRole("buyer")}
           type="button"
         >
-          <Phone aria-hidden="true" size={17} />
-          <span className="visually-hidden">Phone number</span>
+          <UserRound aria-hidden="true" size={19} />
+          Customer Login
         </button>
       </div>
 
-      {loginMethod === "email" ? (
         <div className="signin-email-stage">
           <form action={emailAction} className="auth-form signin-auth-form">
             <div className="field">
@@ -289,7 +265,7 @@ export function SignInForm() {
             </div>
             <div className="signin-form-options">
               <label className="signin-remember">
-                <input type="checkbox" />
+                <input checked={remember} name="remember" onChange={(event) => setRemember(event.currentTarget.checked)} type="checkbox" />
                 <span>Remember me</span>
               </label>
               <Link href="/forgot-password">Forgot Password?</Link>
@@ -300,8 +276,9 @@ export function SignInForm() {
             </button>
           </form>
           <FormFeedback state={socialState} />
-          <div className="signin-divider"><span>or</span></div>
+          <div className="signin-divider"><span>or continue with</span></div>
           <form action={socialAction} className="signin-social-options">
+            {remember && <input name="remember" type="hidden" value="on" />}
             <button className="signin-social-button" name="provider" value="google" type="submit" disabled={socialPending}>
               <GoogleMark />
               Continue with Google
@@ -312,80 +289,10 @@ export function SignInForm() {
             </button>
           </form>
         </div>
-      ) : phoneStage === "number" ? (
-        <form action={phoneAction} className="auth-form signin-auth-form">
-          <div className="field">
-            <label htmlFor="login-phone">Phone no</label>
-            <div className="signin-phone-input">
-              <select
-                aria-label="Phone country code"
-                name="phoneCountryCode"
-                onChange={(event) => setPhoneCountryCode(event.currentTarget.value)}
-                value={phoneCountryCode}
-              >
-                {shopperCountryCodes.map(({ code }) => (
-                  <option key={code} value={code}>{code}</option>
-                ))}
-              </select>
-              <input
-                autoComplete="tel-national"
-                id="login-phone"
-                inputMode="tel"
-                name="phone"
-                onChange={(event) => setPhoneNumber(event.currentTarget.value)}
-                placeholder="700 000 0000"
-                required
-                type="tel"
-                value={phoneNumber}
-              />
-              <Phone aria-hidden="true" size={18} />
-            </div>
-          </div>
-          <div className="signin-form-options">
-            <label className="signin-remember">
-              <input type="checkbox" />
-              <span>Remember me</span>
-            </label>
-          </div>
-          <FormFeedback state={phoneState} />
-          <button className="button auth-submit" type="submit" disabled={phonePending}>
-            {phonePending ? "Sending code..." : "Continue"}
-          </button>
-        </form>
-      ) : (
-        <div className="signin-phone-verification">
-          <FormFeedback state={phoneState} />
-          <form action={verifyAction} className="auth-form signin-auth-form">
-            <div className="field">
-              <label htmlFor="phone-signin-code">Verification code</label>
-              <input
-                autoComplete="one-time-code"
-                className="signin-code-input"
-                id="phone-signin-code"
-                inputMode="numeric"
-                maxLength={6}
-                name="token"
-                pattern="[0-9]{6}"
-                placeholder="Enter the 6-digit code"
-                required
-              />
-            </div>
-            <FormFeedback state={verifyState} />
-            <button className="button auth-submit" type="submit" disabled={verifyPending}>
-              {verifyPending ? "Verifying..." : "Verify and continue"}
-            </button>
-          </form>
-          <FormFeedback state={resendState} />
-          <div className="signin-otp-actions">
-            <button type="button" onClick={() => setPhoneStage("number")}>Change phone number</button>
-            <form action={resendAction}>
-              <button disabled={resendPending} type="submit">
-                {resendPending ? "Sending..." : "Resend code"}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
+      <p className="auth-switch">
+        Don&apos;t have an account?{" "}
+        <Link href={`/signup?role=${loginRole}`}>Register as a {loginRole === "buyer" ? "customer" : "vendor"}</Link>
+      </p>
     </div>
   );
 }
@@ -409,7 +316,7 @@ function AppleMark() {
   );
 }
 
-export function SignUpForm() {
+export function SignUpForm({ initialRole }: { initialRole?: "buyer" | "seller" }) {
   const [state, action, pending] = useActionState(signUpAction, initialState);
   const [vendorState, vendorAction, vendorPending] = useActionState(
     vendorSignUpAction,
@@ -420,14 +327,16 @@ export function SignUpForm() {
     initialState,
   );
   const [selectedAccount, setSelectedAccount] = useState<AccountType>("customer");
-  const [selectedOption, setSelectedOption] = useState<AccountOption | "">("");
+  const [selectedOption, setSelectedOption] = useState<AccountOption | "">(initialRole ?? "");
   const [step, setStep] = useState<
     "account" | "option" | "credentials" | "sellerType" | "sellerDetails"
-  >("account");
+  >(initialRole === "seller" ? "sellerType" : initialRole ? "credentials" : "account");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [phoneCountryCode, setPhoneCountryCode] = useState("+234");
   const [buyerSignupStage, setBuyerSignupStage] = useState(1);
-  const [profilePhotoName, setProfilePhotoName] = useState("");
+  const [profilePhotoPreview, setProfilePhotoPreview] = useState("");
+  const [profilePhotoError, setProfilePhotoError] = useState("");
+  const profilePhotoRef = useRef<HTMLInputElement>(null);
   const personalInfoRef = useRef<HTMLFieldSetElement>(null);
   const contactInfoRef = useRef<HTMLFieldSetElement>(null);
   const securityInfoRef = useRef<HTMLFieldSetElement>(null);
@@ -439,6 +348,21 @@ export function SignUpForm() {
   const isBuyerSignup = selectedOption === "buyer";
   const isVendorSignup = selectedOption === "seller";
   const isMarketplaceRoleSignup = isBuyerSignup || isVendorSignup;
+
+  useEffect(() => {
+    return () => {
+      if (profilePhotoPreview) URL.revokeObjectURL(profilePhotoPreview);
+    };
+  }, [profilePhotoPreview]);
+
+  function clearProfilePhoto() {
+    if (profilePhotoRef.current) {
+      profilePhotoRef.current.value = "";
+      profilePhotoRef.current.setCustomValidity("");
+    }
+    setProfilePhotoPreview("");
+    setProfilePhotoError("");
+  }
 
   function chooseAccount(accountType: AccountType) {
     setSelectedAccount(accountType);
@@ -463,7 +387,7 @@ export function SignUpForm() {
       password: String(formData.get("password") ?? ""),
       confirmPassword: String(formData.get("confirmPassword") ?? ""),
     });
-    setStep("sellerType");
+    setStep("sellerDetails");
   }
 
   function continueBuyerSignup() {
@@ -521,7 +445,7 @@ export function SignUpForm() {
 
   return (
     <div
-      className={`signup-flow${step === "account" ? " signup-account-stage" : ""}${step === "option" && selectedAccount === "customer" ? " signup-marketplace-option-stage" : ""}`}
+      className={`signup-flow${step === "account" ? " signup-account-stage" : ""}${step === "option" && selectedAccount === "customer" ? " signup-marketplace-option-stage" : ""}${step === "sellerType" ? " signup-vendor-category-stage" : ""}`}
     >
       {step === "account" && (
         <header className="signup-account-header">
@@ -535,13 +459,28 @@ export function SignUpForm() {
       )}
       {step === "option" && selectedAccount === "customer" && (
         <div className="signup-marketplace-visual">
-          <Image
-            alt="MarketPlace: Shop, Sell, Grow"
-            className="signup-marketplace-logo"
-            height={110}
-            src="/header.png"
-            width={344}
-          />
+          <div className="signup-marketplace-header">
+            <button
+              aria-label="Go back to account selection"
+              className="signup-back signup-marketplace-back"
+              onClick={() => {
+                setSelectedOption("");
+                setStep("account");
+              }}
+              type="button"
+            >
+              <ChevronLeft aria-hidden="true" size={20} />
+              <span className="signup-marketplace-back-label">Go Back</span>
+            </button>
+            <Image
+              alt="MarketPlace: Shop, Sell, Grow"
+              className="signup-marketplace-logo"
+              height={110}
+              src="/header.png"
+              width={344}
+            />
+            <span aria-hidden="true" />
+          </div>
           <Image
             alt="A shopper carrying bags and using her phone"
             className="signup-marketplace-illustration"
@@ -549,6 +488,17 @@ export function SignUpForm() {
             src="/marketplace.png"
             width={587}
           />
+        </div>
+      )}
+      {step === "sellerType" && (
+        <div className="signup-vendor-category-visual">
+          <div className="signup-vendor-category-header">
+            <button aria-label="Back to Marketplace selection" className="signup-shopper-back" onClick={() => setStep("option")} type="button">
+              <ChevronLeft aria-hidden="true" size={24} />
+            </button>
+            <Image alt="MarketPlace: Shop, Sell, Grow" className="signup-vendor-category-logo" height={110} src="/header.png" width={344} />
+          </div>
+          <Image alt="" aria-hidden="true" className="signup-vendor-category-illustration" height={202} src="/vendor-category-illustration.png" width={370} />
         </div>
       )}
       <h1
@@ -559,7 +509,9 @@ export function SignUpForm() {
             ? "signup-account-heading"
             : step === "option" && selectedAccount === "customer"
               ? "signup-marketplace-option-heading"
-            : step === "option" || step === "sellerType" || step === "sellerDetails"
+            : step === "sellerType"
+              ? "signup-vendor-category-heading"
+            : step === "option" || step === "sellerDetails"
               ? "signup-option-heading"
               : undefined
         }
@@ -574,7 +526,7 @@ export function SignUpForm() {
               ? "Create Vendor Account"
             : "Create your account"
           : step === "sellerType"
-            ? "Choose seller type"
+            ? <>Vendor <span>Category</span></>
             : step === "sellerDetails"
               ? sellerType === "individual"
                 ? "Individual seller details"
@@ -594,7 +546,7 @@ export function SignUpForm() {
                 ? "Create your account to start selling on SpaciMore"
                 : credentialsDescription
             : step === "sellerType"
-              ? "Choose how you will sell on the marketplace"
+              ? "Choose your vendor seller category"
               : step === "sellerDetails"
                 ? sellerType === "individual"
                   ? "Enter your legal details for your individual seller account"
@@ -633,7 +585,7 @@ export function SignUpForm() {
             </div>
 
             <ol aria-label="Signup progress" className="signup-progress">
-              {["Personal Info", "Contact Info", "Security", "Complete"].map((label, index) => {
+              {["Personal Info", "Contact Info", "Security", "Verify"].map((label, index) => {
                 const stage = index + 1;
                 const isComplete = stage < buyerSignupStage;
                 const isCurrent = stage === buyerSignupStage;
@@ -662,7 +614,7 @@ export function SignUpForm() {
               <input name="accountOption" type="hidden" value={selectedOption} />
 
               <fieldset
-                className="signup-shopper-step"
+                className="signup-shopper-step signup-shopper-personal"
                 hidden={buyerSignupStage !== 1}
                 ref={personalInfoRef}
               >
@@ -671,90 +623,67 @@ export function SignUpForm() {
                   Create <span>Your Account</span>
                 </h1>
                 <p className="signup-shopper-description">
-                  Let&apos;s get started. Tell us a little about yourself.
+                  Let&apos;s get started, tell us a little bit about yourself
                 </p>
+
+                <div className="signup-photo-field">
+                  <label className="signup-photo-upload" htmlFor="profilePhoto">
+                    <input
+                      accept="image/jpeg,image/png"
+                      aria-describedby={profilePhotoError ? "profilePhotoHelp profilePhotoError" : "profilePhotoHelp"}
+                      id="profilePhoto"
+                      name="profilePhoto"
+                      onChange={(event) => {
+                        const input = event.currentTarget;
+                        const file = input.files?.[0];
+                        const error = file && (!["image/jpeg", "image/png"].includes(file.type) || file.size === 0 || file.size > 2 * 1024 * 1024)
+                          ? "Choose a JPG or PNG image no larger than 2 MB."
+                          : "";
+                        input.setCustomValidity(error);
+                        setProfilePhotoError(error);
+                        setProfilePhotoPreview(file && !error ? URL.createObjectURL(file) : "");
+                      }}
+                      ref={profilePhotoRef}
+                      type="file"
+                    />
+                    <span className="signup-photo-avatar">
+                      {profilePhotoPreview ? (
+                        <Image alt="" height={68} src={profilePhotoPreview} unoptimized width={68} />
+                      ) : (
+                        <UserRound aria-hidden="true" size={40} strokeWidth={2.5} />
+                      )}
+                      <span className="signup-photo-camera"><Camera aria-hidden="true" size={14} /></span>
+                    </span>
+                    <span>Tap to upload Photo</span>
+                    <small id="profilePhotoHelp">JPG, PNG (Max 2MB) · Optional</small>
+                  </label>
+                  {profilePhotoError && <p className="signup-photo-error" id="profilePhotoError" role="alert">{profilePhotoError}</p>}
+                  {(profilePhotoPreview || profilePhotoError) && (
+                    <button className="signup-photo-remove" onClick={clearProfilePhoto} type="button">Remove photo</button>
+                  )}
+                </div>
 
                 <div className="signup-shopper-field">
                   <label htmlFor="buyerFirstName">First Name <b>*</b></label>
                   <div className="signup-shopper-input">
-                    <UserRound aria-hidden="true" size={20} />
                     <input
                       autoComplete="given-name"
                       defaultValue=""
                       id="buyerFirstName"
                       name="firstName"
-                      placeholder="Enter your first name"
                       required
-                    />
-                  </div>
-                </div>
-                <div className="signup-shopper-field">
-                  <label htmlFor="middleName">Middle Name <span>(Optional)</span></label>
-                  <div className="signup-shopper-input">
-                    <UserRound aria-hidden="true" size={20} />
-                    <input
-                      autoComplete="additional-name"
-                      id="middleName"
-                      name="middleName"
-                      placeholder="Enter your middle name"
                     />
                   </div>
                 </div>
                 <div className="signup-shopper-field">
                   <label htmlFor="buyerLastName">Last Name <b>*</b></label>
                   <div className="signup-shopper-input">
-                    <UserRound aria-hidden="true" size={20} />
                     <input
                       autoComplete="family-name"
                       id="buyerLastName"
                       name="lastName"
-                      placeholder="Enter your last name"
                       required
                     />
-                  </div>
-                </div>
-
-                <div className="signup-shopper-field">
-                  <label htmlFor="profilePhoto">Profile Photograph <span>(Optional)</span></label>
-                  <label className="signup-photo-upload" htmlFor="profilePhoto">
-                    <input
-                      accept="image/jpeg,image/png"
-                      id="profilePhoto"
-                      name="profilePhoto"
-                      onChange={(event) => {
-                        const file = event.currentTarget.files?.[0];
-                        setProfilePhotoName(file?.name ?? "");
-                      }}
-                      type="file"
-                    />
-                    <span className="signup-photo-camera"><Camera aria-hidden="true" size={23} /></span>
-                    <strong>{profilePhotoName || "Tap to upload photo"}</strong>
-                    <span>JPG, PNG (Max 2MB)</span>
-                  </label>
-                </div>
-
-                <div className="signup-shopper-selects">
-                  <div className="signup-shopper-field">
-                    <label htmlFor="dateOfBirth">Date of Birth <span>(Optional)</span></label>
-                    <div className="signup-shopper-input signup-shopper-select">
-                      <CalendarDays aria-hidden="true" size={19} />
-                      <input autoComplete="bday" id="dateOfBirth" name="dateOfBirth" type="date" />
-                      <ChevronDown aria-hidden="true" size={18} />
-                    </div>
-                  </div>
-                  <div className="signup-shopper-field">
-                    <label htmlFor="gender">Gender <span>(Optional)</span></label>
-                    <div className="signup-shopper-input signup-shopper-select">
-                      <UserRound aria-hidden="true" size={19} />
-                      <select defaultValue="" id="gender" name="gender">
-                        <option disabled value="">Select gender</option>
-                        <option value="female">Female</option>
-                        <option value="male">Male</option>
-                        <option value="other">Other</option>
-                        <option value="prefer_not_to_say">Prefer not to say</option>
-                      </select>
-                      <ChevronDown aria-hidden="true" size={18} />
-                    </div>
                   </div>
                 </div>
               </fieldset>
@@ -829,7 +758,7 @@ export function SignUpForm() {
                   onClick={continueBuyerSignup}
                   type="button"
                 >
-                  Continue <ArrowRight aria-hidden="true" size={18} />
+                  Continue {buyerSignupStage !== 1 && <ArrowRight aria-hidden="true" size={18} />}
                 </button>
               ) : (
                 <button
@@ -839,15 +768,6 @@ export function SignUpForm() {
                 >
                   {pending ? "Creating account..." : "Continue"}
                   <ArrowRight aria-hidden="true" size={18} />
-                </button>
-              )}
-              {buyerSignupStage === 1 && (
-                <button
-                  className="signup-shopper-skip"
-                  onClick={continueBuyerSignup}
-                  type="button"
-                >
-                  Skip for now
                 </button>
               )}
             </form>
@@ -880,11 +800,11 @@ export function SignUpForm() {
             <input type="hidden" name="accountOption" value={selectedOption} />
             <button
               className="signup-back"
-              onClick={() => setStep(options ? "option" : "account")}
+              onClick={() => setStep(isVendorSignup ? "sellerType" : options ? "option" : "account")}
               type="button"
             >
               <ChevronLeft aria-hidden="true" size={16} />
-              {options ? "Change Selection" : "Go Back"}
+              {isVendorSignup ? "Change seller category" : options ? "Change Selection" : "Go Back"}
             </button>
             {isMarketplaceRoleSignup && (
               <div className="signup-name-fields">
@@ -922,7 +842,7 @@ export function SignUpForm() {
                     autoComplete="tel-country-code"
                     onChange={(event) => setPhoneCountryCode(event.currentTarget.value)}
                     name="phoneCountryCode"
-                    value={vendorCredentials?.phoneCountryCode ?? phoneCountryCode}
+                    value={phoneCountryCode}
                   >
                     {shopperCountryCodes.map(({ country, code }) => (
                       <option key={country} title={country} value={code}>{code}</option>
@@ -992,56 +912,24 @@ export function SignUpForm() {
         </div>
         )
       ) : step === "sellerType" ? (
-        <div className="signup-selector seller-type-selector">
-          <button
-            className="signup-back signup-back-option"
-            onClick={() => setStep("credentials")}
-            type="button"
-          >
-            <ChevronLeft aria-hidden="true" size={16} />
-            Back to account details
-          </button>
-          <fieldset className="account-options">
-            <legend className="visually-hidden">Choose seller type</legend>
-            <label className={`account-option${sellerType === "individual" ? " is-selected" : ""}`}>
-              <input
-                checked={sellerType === "individual"}
-                name="sellerType"
-                onChange={() => setSellerType("individual")}
-                type="radio"
-                value="individual"
-              />
-              <span className="account-avatar" aria-hidden="true"><UserRound size={38} strokeWidth={1.7} /></span>
-              <span className="account-option-copy">
-                <span className="account-option-title">Individual Seller</span>
-                <span className="account-option-description">Sell as an individual or sole trader</span>
-              </span>
-              <span className="account-radio" aria-hidden="true" />
-            </label>
-            <label className={`account-option${sellerType === "business" ? " is-selected" : ""}`}>
-              <input
-                checked={sellerType === "business"}
-                name="sellerType"
-                onChange={() => setSellerType("business")}
-                type="radio"
-                value="business"
-              />
-              <span className="account-avatar" aria-hidden="true"><Building2 size={38} strokeWidth={1.7} /></span>
-              <span className="account-option-copy">
-                <span className="account-option-title">Registered Business</span>
-                <span className="account-option-description">Sell as a registered business or company</span>
-              </span>
-              <span className="account-radio" aria-hidden="true" />
-            </label>
-          </fieldset>
-          <button
-            className="button auth-submit signup-option-continue"
-            disabled={!sellerType}
-            onClick={() => setStep("sellerDetails")}
-            type="button"
-          >
-            Continue <ArrowRight aria-hidden="true" size={16} />
-          </button>
+        <div aria-label="Choose your vendor seller category" className="seller-type-selector" role="group">
+          {([
+            { value: "individual", title: "Individual", description: "I want to create my store and sell to customers" },
+            { value: "business", title: "Business", description: "I am a registered business and want to sell" },
+          ] as const).map(({ value, title, description }) => (
+            <button
+              className="vendor-category-option"
+              key={value}
+              onClick={() => {
+                setSellerType(value);
+                setStep("credentials");
+              }}
+              type="button"
+            >
+              <Image alt="" aria-hidden="true" height={50} src="/bbb.png" width={50} />
+              <span><strong>{title}</strong><span>{description}</span></span>
+            </button>
+          ))}
         </div>
       ) : step === "sellerDetails" && vendorCredentials && sellerType ? (
         <form action={vendorAction} className="auth-form vendor-details-form">
@@ -1055,11 +943,11 @@ export function SignUpForm() {
           <input name="sellerType" type="hidden" value={sellerType} />
           <button
             className="signup-back"
-            onClick={() => setStep("sellerType")}
+            onClick={() => setStep("credentials")}
             type="button"
           >
             <ChevronLeft aria-hidden="true" size={16} />
-            Change seller type
+            Back to account details
           </button>
 
           {sellerType === "individual" ? (
@@ -1192,19 +1080,6 @@ export function SignUpForm() {
         </form>
       ) : (
         <>
-          {step === "option" && (
-            <button
-              className="signup-back signup-back-option"
-              onClick={() => {
-                setSelectedOption("");
-                setStep("account");
-              }}
-              type="button"
-            >
-              <ChevronLeft aria-hidden="true" size={16} />
-              Go Back
-            </button>
-          )}
           <div className={`signup-selector${step === "option" && selectedAccount === "customer" ? " marketplace-option-selector" : ""}`}>
             <fieldset className={`account-options${step === "option" && selectedAccount === "customer" ? " marketplace-account-options" : ""}`}>
               <legend className="visually-hidden">
@@ -1240,11 +1115,22 @@ export function SignUpForm() {
                     <label
                       className={`account-option${selectedOption === value ? " is-selected" : ""}`}
                       key={value}
+                      onClick={() => {
+                        if (step === "option" && selectedAccount === "customer") {
+                          setSelectedOption(value);
+                          setStep(value === "seller" ? "sellerType" : "credentials");
+                        }
+                      }}
                     >
                       <input
                         checked={selectedOption === value}
                         name="accountOptionChoice"
-                        onChange={() => setSelectedOption(value)}
+                        onChange={() => {
+                          setSelectedOption(value);
+                          if (step === "option" && selectedAccount === "customer") {
+                            setStep(value === "seller" ? "sellerType" : "credentials");
+                          }
+                        }}
                         type="radio"
                         value={value}
                       />
@@ -1252,9 +1138,9 @@ export function SignUpForm() {
                         {step === "option" && selectedAccount === "customer" ? (
                           <Image
                             alt=""
-                            height={250}
-                            src={value === "buyer" ? "/userr.png" : "/shop (1).png"}
-                            width={250}
+                            height={48}
+                            src={value === "buyer" ? "/aaa.png" : "/bbb.png"}
+                            width={48}
                           />
                         ) : (
                           <Icon size={38} strokeWidth={1.7} />
@@ -1284,7 +1170,7 @@ export function SignUpForm() {
                     </label>
                   ))}
             </fieldset>
-            {step !== "account" && (
+            {step !== "account" && !(step === "option" && selectedAccount === "customer") && (
               <button
                 className={`button auth-submit${step === "option" ? " signup-option-continue" : ""}`}
                 onClick={() => setStep("credentials")}
@@ -1295,9 +1181,6 @@ export function SignUpForm() {
                 <ArrowRight aria-hidden="true" size={16} />
               </button>
             )}
-            {step === "option" && selectedAccount === "customer" && (
-            <Link className="signup-marketplace-later" href="/">Maybe later</Link>
-            )}
           </div>
         </>
       )}
@@ -1305,17 +1188,32 @@ export function SignUpForm() {
   );
 }
 
-export function VerifyAccountForm({ maskedEmail }: { maskedEmail: string }) {
+type VerifyAccountFormProps = {
+  maskedEmail: string;
+  buyerVerification?: boolean;
+  needsEmailCode?: boolean;
+};
+
+export function VerifyAccountForm({
+  maskedEmail,
+  buyerVerification = false,
+  needsEmailCode = false,
+}: VerifyAccountFormProps) {
   const [verifyState, verifyAction, verifyPending] = useActionState(
     verifyEmailSignupOtpAction,
     initialState,
   );
+  const [emailCodeRequested, setEmailCodeRequested] = useState(!needsEmailCode);
   const [resendState, resendAction, resendPending] = useActionState(
-    resendEmailSignupOtpAction,
+    async (previousState: AuthActionState) => {
+      const result = await resendEmailSignupOtpAction(previousState);
+      if (result.message) setEmailCodeRequested(true);
+      return result;
+    },
     initialState,
   );
   const [digits, setDigits] = useState(["", "", "", "", "", ""]);
-  const [secondsRemaining, setSecondsRemaining] = useState(60);
+  const [secondsRemaining, setSecondsRemaining] = useState(needsEmailCode ? 0 : 60);
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
 
   useEffect(() => {
@@ -1335,7 +1233,7 @@ export function VerifyAccountForm({ maskedEmail }: { maskedEmail: string }) {
       inputRefs.current[0]?.focus();
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [resendState.message]);
+  }, [resendState]);
 
   function updateDigit(index: number, value: string) {
     const digit = value.replace(/\D/g, "").slice(-1);
@@ -1353,32 +1251,135 @@ export function VerifyAccountForm({ maskedEmail }: { maskedEmail: string }) {
 
   const code = digits.join("");
 
+  function renderOtpInputs(label: string) {
+    return (
+      <div
+        className={buyerVerification ? "signup-verify-otp-inputs" : "verify-otp-inputs"}
+        onPaste={handlePaste}
+        role="group"
+        aria-label={label}
+      >
+        {digits.map((digit, index) => (
+          <input
+            aria-label={`Verification code digit ${index + 1}`}
+            autoComplete={index === 0 ? "one-time-code" : "off"}
+            className={buyerVerification ? "signup-verify-otp-digit" : "verify-otp-digit"}
+            inputMode="numeric"
+            key={index}
+            maxLength={1}
+            onChange={(event) => updateDigit(index, event.currentTarget.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Backspace" && !digits[index] && index > 0) {
+                inputRefs.current[index - 1]?.focus();
+              }
+              if (event.key === "ArrowLeft" && index > 0) inputRefs.current[index - 1]?.focus();
+              if (event.key === "ArrowRight" && index < 5) inputRefs.current[index + 1]?.focus();
+            }}
+            ref={(element) => { inputRefs.current[index] = element; }}
+            type="text"
+            value={digit}
+          />
+        ))}
+      </div>
+    );
+  }
+
+  if (buyerVerification) {
+    const isOtpSent = emailCodeRequested;
+
+    return (
+      <section className="signup-verify-flow" aria-labelledby="signup-verification-title">
+        <header className="signup-verify-header">
+          <Link aria-label="Back to sign up" className="signup-verify-back" href="/signup">
+            <ChevronLeft aria-hidden="true" size={24} />
+          </Link>
+          <Image
+            alt="MarketPlace: Shop, Sell, Grow"
+            className="signup-verify-logo"
+            height={110}
+            src="/header.png"
+            width={344}
+          />
+          <span aria-hidden="true" />
+        </header>
+
+        <ol aria-label="Signup progress" className="signup-verify-progress">
+          {["Personal Info", "Contact Info", "Security", "Verify"].map((label, index) => {
+            const stage = index + 1;
+            const isCurrent = stage === 4;
+            return (
+              <li
+                aria-current={isCurrent ? "step" : undefined}
+                className={isCurrent ? "is-current" : "is-complete"}
+                key={label}
+              >
+                <span className="signup-verify-progress-marker">
+                  {isCurrent ? stage : <Check aria-hidden="true" size={15} strokeWidth={3} />}
+                </span>
+                <span className="signup-verify-progress-label">{label}</span>
+              </li>
+            );
+          })}
+        </ol>
+
+        <h1 className="signup-verify-title" id="signup-verification-title">
+          Verify Your <span>Email</span>
+        </h1>
+        <p className="signup-verify-description">
+          {isOtpSent ? "Enter the 6-digit code sent to " : "Request a verification code for "}
+          <strong>{maskedEmail}</strong>.
+        </p>
+
+        {isOtpSent ? (
+          <form action={verifyAction} className="signup-verify-form">
+            {renderOtpInputs("6-digit verification code")}
+            <input name="token" type="hidden" value={code} />
+            <FormFeedback state={verifyState} />
+            <button
+              className="button auth-submit signup-verify-submit"
+              type="submit"
+              disabled={verifyPending || code.length !== 6}
+            >
+              {verifyPending ? "Verifying..." : "Verify Email"}
+            </button>
+          </form>
+        ) : (
+          <form action={resendAction} className="signup-verify-form">
+            <button className="button auth-submit signup-verify-submit" disabled={resendPending} type="submit">
+              {resendPending ? "Sending..." : "Send email code"}
+            </button>
+          </form>
+        )}
+
+        {isOtpSent && (
+          <div className="signup-verify-resend">
+            <span>Didn&apos;t receive the code?</span>
+            {secondsRemaining > 0 ? (
+              <span className="verify-resend-countdown">
+                Resend in 0:{String(secondsRemaining).padStart(2, "0")}
+              </span>
+            ) : (
+              <form action={resendAction}>
+                <button
+                  className="verify-resend-button"
+                  type="submit"
+                  disabled={resendPending}
+                >
+                  {resendPending ? "Sending..." : "Resend Code"}
+                </button>
+              </form>
+            )}
+          </div>
+        )}
+        <FormFeedback state={resendState} />
+      </section>
+    );
+  }
+
   return (
     <div className="verify-account-form">
       <form action={verifyAction} className="auth-form">
-        <div className="verify-otp-inputs" onPaste={handlePaste} role="group" aria-label="6-digit verification code">
-          {digits.map((digit, index) => (
-            <input
-              aria-label={`Verification code digit ${index + 1}`}
-              autoComplete={index === 0 ? "one-time-code" : "off"}
-              className="verify-otp-digit"
-              inputMode="numeric"
-              key={index}
-              maxLength={1}
-              onChange={(event) => updateDigit(index, event.currentTarget.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Backspace" && !digits[index] && index > 0) {
-                  inputRefs.current[index - 1]?.focus();
-                }
-                if (event.key === "ArrowLeft" && index > 0) inputRefs.current[index - 1]?.focus();
-                if (event.key === "ArrowRight" && index < 5) inputRefs.current[index + 1]?.focus();
-              }}
-              ref={(element) => { inputRefs.current[index] = element; }}
-              type="text"
-              value={digit}
-            />
-          ))}
-        </div>
+        {renderOtpInputs("6-digit verification code")}
         <input name="token" type="hidden" value={code} />
         <FormFeedback state={verifyState} />
         <button className="button auth-submit" type="submit" disabled={verifyPending || code.length !== 6}>
@@ -1412,11 +1413,17 @@ export function ResetPasswordForm() {
   );
 
   return (
-    <form action={action} className="auth-form">
-      <EmailField />
+    <form action={action} className="auth-form forgot-password-form">
+      <div className="field">
+        <label htmlFor="email">Email Address *</label>
+        <div className="signin-input-wrap">
+          <Mail aria-hidden="true" size={21} />
+          <input autoComplete="email" id="email" name="email" placeholder="Enter your email address" required type="email" />
+        </div>
+      </div>
       <FormFeedback state={state} />
       <button className="button auth-submit" type="submit" disabled={pending}>
-        {pending ? "Sending link..." : "Send reset link"} <span aria-hidden="true">↗</span>
+        {pending ? "Sending link..." : "Send Reset Link"}
       </button>
     </form>
   );
@@ -1427,14 +1434,41 @@ export function UpdatePasswordForm() {
     updatePasswordAction,
     initialState,
   );
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const requirements = getResetPasswordRequirements(password);
 
   return (
-    <form action={action} className="auth-form">
-      <PasswordField id="password" label="New password" autoComplete="new-password" minLength={12} placeholder="At least 12 characters" />
-      <PasswordField id="confirmPassword" label="Confirm new password" autoComplete="new-password" minLength={12} placeholder="Re-enter your password" />
+    <form action={action} className="auth-form update-password-form">
+      <div className="field">
+        <label htmlFor="password">New Password *</label>
+        <div className="signin-input-wrap">
+          <LockKeyhole aria-hidden="true" size={20} />
+          <input autoComplete="new-password" id="password" minLength={8} name="password" onChange={(event) => setPassword(event.currentTarget.value)} placeholder="Enter New Password" required type={showPassword ? "text" : "password"} value={password} aria-describedby="reset-password-requirements" />
+          <button aria-label={showPassword ? "Hide new password" : "Show new password"} aria-pressed={showPassword} className="signin-password-toggle" onClick={() => setShowPassword((visible) => !visible)} type="button">
+            {showPassword ? <EyeOff aria-hidden="true" size={20} /> : <Eye aria-hidden="true" size={20} />}
+          </button>
+        </div>
+      </div>
+      <ul className="reset-password-requirements" id="reset-password-requirements">
+        <li className={requirements.length ? "is-satisfied" : ""}><Check aria-hidden="true" size={13} />At least 8 characters <span className="visually-hidden">({requirements.length ? "met" : "not yet met"})</span></li>
+        <li className={requirements.letterAndNumber ? "is-satisfied" : ""}><Check aria-hidden="true" size={13} />Include a letter and a number <span className="visually-hidden">({requirements.letterAndNumber ? "met" : "not yet met"})</span></li>
+        <li className="is-optional"><Check aria-hidden="true" size={13} />Use special characters (Optional)</li>
+      </ul>
+      <div className="field">
+        <label htmlFor="confirmPassword">Confirm New Password *</label>
+        <div className="signin-input-wrap">
+          <LockKeyhole aria-hidden="true" size={20} />
+          <input autoComplete="new-password" id="confirmPassword" minLength={8} name="confirmPassword" placeholder="Confirm New Password" required type={showConfirmation ? "text" : "password"} />
+          <button aria-label={showConfirmation ? "Hide confirmation password" : "Show confirmation password"} aria-pressed={showConfirmation} className="signin-password-toggle" onClick={() => setShowConfirmation((visible) => !visible)} type="button">
+            {showConfirmation ? <EyeOff aria-hidden="true" size={20} /> : <Eye aria-hidden="true" size={20} />}
+          </button>
+        </div>
+      </div>
       <FormFeedback state={state} />
       <button className="button auth-submit" type="submit" disabled={pending}>
-        {pending ? "Updating password..." : "Update password"} <span aria-hidden="true">↗</span>
+        {pending ? "Updating password..." : "Reset Password"}
       </button>
     </form>
   );

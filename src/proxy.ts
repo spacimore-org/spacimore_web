@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { isAuthSessionMissingError } from "@supabase/auth-js";
 import { NextResponse, type NextRequest } from "next/server";
 import { getSupabaseEnv } from "@/lib/supabase/env";
+import { authCookieOptions, sessionOnlyCookie } from "@/lib/supabase/session-cookies";
 
 export async function proxy(request: NextRequest) {
   const { url, publishableKey } = getSupabaseEnv();
@@ -18,7 +19,7 @@ export async function proxy(request: NextRequest) {
         });
         response = NextResponse.next({ request });
         cookiesToSet.forEach(({ name, value, options }) => {
-          response.cookies.set(name, value, options);
+          response.cookies.set(name, value, authCookieOptions(options, request.cookies.get(sessionOnlyCookie)?.value === "true"));
         });
       },
     },

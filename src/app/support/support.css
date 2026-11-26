@@ -1,0 +1,154 @@
+.support-page {
+  background: #f8f6fc;
+  color: #1d1923;
+  flex: 1;
+  min-height: 100svh;
+}
+
+.support-header {
+  align-items: center;
+  background: #fff;
+  display: flex;
+  justify-content: space-between;
+  padding: 20px max(5%, calc((100% - 1040px) / 2));
+}
+
+.support-brand {
+  display: inline-flex;
+}
+
+.support-home {
+  align-items: center;
+  color: #7042df;
+  display: inline-flex;
+  font-size: 14px;
+  gap: 6px;
+}
+
+.support-content {
+  margin: 0 auto;
+  max-width: 1040px;
+  padding: 48px 24px 70px;
+}
+
+.support-intro {
+  margin-bottom: 42px;
+  text-align: center;
+}
+
+.support-intro span {
+  color: #8e60ff;
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: 1px;
+}
+
+.support-intro h1 {
+  font-size: clamp(30px, 5vw, 42px);
+  font-weight: 750;
+  margin: 8px 0;
+}
+
+.support-intro p,
+.support-contact p {
+  color: #67616f;
+  margin: 0;
+}
+
+.support-content h2 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 18px;
+}
+
+.support-topics {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.support-topics a {
+  background: #fff;
+  border: 1px solid #e8e1f3;
+  border-radius: 14px;
+  display: grid;
+  gap: 8px;
+  padding: 22px;
+}
+
+.support-topics a:hover {
+  border-color: #8e60ff;
+}
+
+.support-topics svg,
+.support-contact > svg {
+  color: #8e60ff;
+}
+
+.support-topics span {
+  color: #67616f;
+  font-size: 14px;
+}
+
+.support-faq {
+  margin-top: 40px;
+}
+
+.support-faq details {
+  background: #fff;
+  border: 1px solid #e8e1f3;
+  border-radius: 10px;
+  margin-top: 10px;
+  padding: 16px 18px;
+  scroll-margin-top: 20px;
+}
+
+.support-faq summary {
+  cursor: pointer;
+  font-weight: 650;
+}
+
+.support-faq p {
+  color: #67616f;
+  line-height: 1.6;
+  margin: 12px 0 0;
+}
+
+.support-faq p a {
+  color: #7042df;
+  text-decoration: underline;
+}
+
+.support-contact {
+  align-items: flex-start;
+  background: #eee7ff;
+  border-radius: 14px;
+  display: flex;
+  gap: 16px;
+  margin-top: 40px;
+  padding: 24px;
+}
+
+.support-contact h2 {
+  margin-bottom: 6px;
+}
+
+.support-email {
+  align-items: center;
+  color: #7042df;
+  display: inline-flex;
+  font-weight: 700;
+  gap: 8px;
+  margin-top: 16px;
+  text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+  .support-content {
+    padding-top: 36px;
+  }
+
+  .support-topics {
+    grid-template-columns: 1fr;
+  }
+}

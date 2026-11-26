@@ -1,6 +1,4 @@
 import { redirect } from "next/navigation";
-import { signOutAction } from "@/app/actions";
-import { BrandLink } from "@/components/brand-link";
 import { MarketplaceHome } from "@/components/marketplace-home";
 import { createClient } from "@/lib/supabase/server";
 import "../marketplace.css";
@@ -22,7 +20,7 @@ export default async function DashboardPage() {
     redirect("/verify-account");
   }
 
-  if (data.user.user_metadata.account_role === "buyer") {
+  if (data.user.user_metadata.account_role === "buyer" || data.user.user_metadata.account_role === "seller") {
     const metadata = data.user.user_metadata;
     const firstName =
       typeof metadata.first_name === "string" ? metadata.first_name.trim() : "";
@@ -32,30 +30,10 @@ export default async function DashboardPage() {
       firstName ||
       fullName.split(/\s+/)[0] ||
       data.user.email?.split("@")[0] ||
-      "Shopper";
+      (metadata.account_role === "seller" ? "Vendor" : "Shopper");
 
     return <MarketplaceHome signedInUser={{ displayName }} />;
   }
 
-  return (
-    <main className="dashboard-page">
-      <header className="site-header dashboard-header">
-        <BrandLink className="brand" />
-        <form action={signOutAction}>
-          <button className="button-quiet" type="submit">Sign out</button>
-        </form>
-      </header>
-      <section className="dashboard-main">
-        <div className="dashboard-kicker">YOUR WORKSPACE</div>
-        <h1>You’re right where<br />you <em>belong.</em></h1>
-        <p className="dashboard-description">
-          Your account is set up and ready. This is your private space to build what comes next.
-        </p>
-        <div className="account-panel">
-          <div className="account-panel-label">SIGNED IN AS</div>
-          <p className="account-email">{data.user.email}</p>
-        </div>
-      </section>
-    </main>
-  );
+  return redirect("/login");
 }

@@ -273,12 +273,179 @@
   padding: 18px 0;
 }
 
+.signup-page:has(.signup-marketplace-option-stage) {
+  background: #fff;
+  display: block;
+  min-height: 100svh;
+  padding: 0;
+  position: relative;
+}
+
+.signup-page:has(.signup-marketplace-option-stage) .login-panel {
+  margin-inline: auto;
+  max-width: 520px;
+  min-height: 100svh;
+  padding: max(20px, env(safe-area-inset-top)) 32px 32px;
+  position: static;
+}
+
+.signup-page:has(.signup-marketplace-option-stage) .login-content {
+  margin: 0 auto;
+  padding: 18px 0;
+}
+
+.signup-page:has(.signup-vendor-category-stage) {
+  background: #fff;
+  display: block;
+  min-height: 100svh;
+  padding: 0;
+}
+
+.signup-page:has(.signup-vendor-category-stage) .login-panel {
+  margin: 0 auto;
+  max-width: 430px;
+  min-height: 100svh;
+  padding: max(26px, env(safe-area-inset-top)) 26px 32px;
+}
+
+.signup-page:has(.signup-vendor-category-stage) .login-content {
+  margin: 0;
+  max-width: none;
+  padding: 0;
+}
+
+.signup-page:has(.signup-vendor-category-stage) .login-brand,
+.signup-page:has(.signup-vendor-category-stage) .login-copyright,
+.signup-page:has(.signup-vendor-category-stage) .auth-switch {
+  display: none;
+}
+
+.signup-vendor-category-header {
+  align-items: center;
+  display: grid;
+  grid-template-columns: 40px 1fr 40px;
+}
+
+.signup-vendor-category-header .signup-shopper-back {
+  height: 40px;
+  width: 40px;
+}
+
+.signup-vendor-category-logo {
+  height: auto;
+  justify-self: center;
+  width: 190px;
+}
+
+.signup-vendor-category-illustration {
+  display: block;
+  height: auto;
+  margin: 50px auto 16px;
+  max-width: 100%;
+  width: 370px;
+}
+
+.signup-page .login-content h1.signup-vendor-category-heading {
+  color: #111;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 30px;
+  font-weight: 750;
+  letter-spacing: -0.8px;
+  margin: 0 0 12px;
+  text-align: center;
+}
+
+.signup-vendor-category-heading span {
+  color: #8e60ff;
+}
+
+.signup-page .signup-vendor-category-stage .login-description {
+  color: #777;
+  font-size: 16px;
+  margin: 0 0 24px;
+  text-align: center;
+}
+
+.seller-type-selector {
+  display: grid;
+  gap: 20px;
+  margin: 0 8px;
+}
+
+.vendor-category-option {
+  align-items: center;
+  background: #f0e9ff;
+  border: 0;
+  border-radius: 10px;
+  color: #111;
+  cursor: pointer;
+  display: flex;
+  gap: 20px;
+  min-height: 92px;
+  padding: 12px;
+  text-align: left;
+  width: 100%;
+}
+
+.vendor-category-option:hover {
+  background: #e8ddff;
+}
+
+.vendor-category-option:focus-visible {
+  outline: 3px solid #8e60ff;
+  outline-offset: 3px;
+}
+
+.vendor-category-option img {
+  flex: 0 0 50px;
+}
+
+.vendor-category-option > span {
+  display: grid;
+}
+
+.vendor-category-option strong {
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.vendor-category-option > span > span {
+  color: #777;
+  font-size: 14px;
+  line-height: 1.45;
+  max-width: 210px;
+}
+
 .signup-marketplace-visual {
   align-items: center;
   display: flex;
   flex-direction: column;
   gap: 8px;
   margin-bottom: 16px;
+}
+
+.signup-marketplace-header {
+  align-items: center;
+  display: grid;
+  grid-template-columns: 48px 1fr 48px;
+  justify-items: center;
+  width: 100%;
+}
+
+.signup-marketplace-back {
+  color: #8e60ff;
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: start;
+  position: absolute;
+  left: clamp(20px, 4vw, 60px);
+  top: max(24px, env(safe-area-inset-top));
+  z-index: 1;
+}
+
+.signup-marketplace-logo {
+  grid-column: 2;
+  grid-row: 1;
 }
 
 .signup-marketplace-logo {
@@ -325,87 +492,56 @@
 }
 
 .marketplace-option-selector {
-  gap: 16px;
+  gap: 12px;
 }
 
 .marketplace-account-options {
-  gap: 12px;
+  gap: 20px;
 }
 
 .marketplace-account-options .account-option {
   background: #fff;
-  border: 2px solid #e6e5ec;
-  border-radius: 17px;
+  border: 1px solid #dedbe7;
+  border-radius: 12px;
   box-shadow: none;
-  gap: 14px;
-  min-height: 100px;
-  padding: 12px 16px;
+  gap: 20px;
+  min-height: 92px;
+  padding: 10px 12px;
 }
 
 .marketplace-account-options .account-option.is-selected {
-  background: #f3edff;
-  border-color: #8e60ff;
+  background: #f0e9ff;
+  border-color: #f0e9ff;
 }
 
 .marketplace-account-options .account-avatar {
-  background: transparent;
-  flex: 0 0 60px;
-  height: 60px;
-  width: 60px;
+  background: #e4d7ff;
+  border-radius: 50%;
+  flex: 0 0 52px;
+  height: 52px;
+  overflow: hidden;
+  width: 52px;
 }
 
 .marketplace-account-options .account-avatar img {
-  height: 60px;
-  width: 60px;
+  height: 100%;
+  object-fit: contain;
+  width: 100%;
 }
 
 .marketplace-account-options .account-option-title {
   color: #15141a;
-  font-size: 18px;
+  font-size: 20px;
 }
 
 .marketplace-account-options .account-option-description {
-  color: #686a80;
-  font-size: 14px;
+  color: #707070;
+  font-size: 15px;
+  line-height: 1.35;
 }
 
 .marketplace-account-options .account-radio {
-  border-color: #d7d6e0;
-  flex: 0 0 27px;
-  height: 27px;
-}
-
-.marketplace-account-options .account-option.is-selected .account-radio {
-  align-items: center;
-  background: #8e60ff;
-  border-color: #8e60ff;
-  color: #fff;
-  display: flex;
-  justify-content: center;
-}
-
-.marketplace-account-options .account-option.is-selected .account-radio::after {
-  content: none;
   display: none;
-}
-
-.marketplace-option-selector .signup-option-continue {
-  border-radius: 18px;
-  height: 58px;
-  min-height: 58px;
-  width: 100%;
-}
-
-.signup-marketplace-later {
-  color: #8e60ff;
-  font-size: 15px;
-  font-weight: 700;
-  justify-self: center;
-  padding: 2px 12px;
-}
-
-.signup-marketplace-later:hover {
-  color: #7950d9;
 }
 
 .account-options {
@@ -676,6 +812,26 @@
     margin-bottom: 12px;
   }
 
+  .signup-marketplace-header {
+    grid-template-columns: 44px 1fr 44px;
+  }
+
+  .signup-marketplace-back {
+    align-items: center;
+    background: #f0e9ff;
+    border-radius: 50%;
+    height: 40px;
+    justify-content: center;
+    left: auto;
+    position: static;
+    top: auto;
+    width: 40px;
+  }
+
+  .signup-marketplace-back-label {
+    display: none;
+  }
+
   .signup-marketplace-logo {
     width: clamp(180px, 58%, 230px);
   }
@@ -903,15 +1059,6 @@
     width: 48px;
   }
 
-  .signup-page .marketplace-option-selector .signup-option-continue {
-    height: 54px;
-    min-height: 54px;
-  }
-
-  .signup-marketplace-later {
-    font-size: 14px;
-  }
-
   .login-panel {
     min-height: 100svh;
     padding-inline: 8%;
@@ -1132,17 +1279,13 @@
 
 .signup-photo-upload {
   align-items: center;
-  background: #faf8ff;
-  border: 1.5px dashed #bda5ff;
-  border-radius: 14px;
   color: #666880;
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 2px;
   justify-content: center;
-  min-height: 112px;
-  padding: 10px;
+  text-align: center;
 }
 
 .signup-photo-upload input {
@@ -1153,49 +1296,112 @@
   width: 1px;
 }
 
-.signup-photo-upload input:focus-visible + .signup-photo-camera {
+.signup-photo-upload input:focus-visible + .signup-photo-avatar {
   outline: 3px solid #8e60ff;
   outline-offset: 3px;
 }
 
-.signup-photo-camera {
+.signup-photo-avatar {
   align-items: center;
-  background: #eee6ff;
+  background: #e2d5ff;
   border-radius: 50%;
   color: #8e60ff;
   display: inline-flex;
-  height: 46px;
+  height: 68px;
   justify-content: center;
-  width: 46px;
+  margin-bottom: 4px;
+  position: relative;
+  width: 68px;
 }
 
-.signup-photo-upload strong {
-  color: #17171e;
-  font-size: 14px;
+.signup-photo-avatar img {
+  border-radius: 50%;
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
 }
 
-.signup-photo-upload > span:last-child {
-  font-size: 12px;
+.signup-photo-camera {
+  align-items: center;
+  background: #8e60ff;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  bottom: -3px;
+  color: #fff;
+  display: inline-flex;
+  height: 24px;
+  justify-content: center;
+  position: absolute;
+  right: -3px;
+  width: 24px;
 }
 
-.signup-shopper-selects {
+.signup-photo-field {
   display: grid;
-  gap: 14px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+  justify-items: center;
 }
 
-.signup-shopper-select {
-  gap: 8px;
-  padding-inline: 12px;
+.signup-photo-upload > span:not(.signup-photo-avatar) {
+  font-size: 13px;
 }
 
-.signup-shopper-select input[type="date"] {
-  color: #737590;
+.signup-photo-upload small {
+  color: #17171e;
+  font-size: 11px;
 }
 
-.signup-shopper-select select {
-  appearance: none;
-  color: #737590;
+.signup-photo-error {
+  color: #b42318;
+  font-size: 13px;
+  margin: 0;
+  text-align: center;
+}
+
+.signup-photo-remove {
+  background: transparent;
+  border: 0;
+  color: #7042df;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  text-decoration: underline;
+}
+
+.signup-page .login-content .signup-shopper-personal .signup-shopper-title {
+  color: #111116;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: clamp(26px, 6vw, 32px);
+  font-weight: 750;
+  letter-spacing: -0.8px;
+  margin: 0;
+  text-align: center;
+}
+
+.signup-page .login-content .signup-shopper-personal .signup-shopper-description {
+  color: #737373;
+  margin: -12px auto 0;
+  max-width: 320px;
+  text-align: center;
+}
+
+.signup-shopper-personal .signup-shopper-input {
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  min-height: 44px;
+}
+
+.signup-page .signup-shopper-form:has(.signup-shopper-personal:not([hidden])) .signup-shopper-submit {
+  background: #8e60ff;
+  border-radius: 20px;
+  font-size: 24px;
+  height: 54px;
+  margin-top: 16px;
+  min-height: 54px;
+}
+
+.signup-page .signup-shopper-form:has(.signup-shopper-personal:not([hidden])) .signup-shopper-submit:hover {
+  background: #7950d9;
 }
 
 .signup-shopper-submit {
@@ -1210,17 +1416,6 @@
 
 .signup-shopper-submit:hover {
   background: #7950d9;
-}
-
-.signup-shopper-skip {
-  background: transparent;
-  border: 0;
-  color: #8e60ff;
-  cursor: pointer;
-  font-size: 15px;
-  font-weight: 700;
-  justify-self: center;
-  padding: 2px 12px;
 }
 
 .signup-name-fields {
@@ -1602,7 +1797,6 @@
 
 .signup-page:has(.signup-account-stage) .login-panel > .login-brand,
 .signup-page:has(.signup-account-stage) .login-copyright,
-.signup-page:has(.signup-account-stage) .login-content > .auth-switch,
 .signup-page:has(.signup-account-stage) .login-story {
   display: none;
 }
@@ -1676,6 +1870,20 @@
   line-height: 1.4;
   margin: 0 0 32px;
   text-align: center;
+}
+
+.signup-page:has(.signup-account-stage) .login-content > .auth-switch {
+  color: #171717;
+  display: block;
+  font-size: 15px;
+  margin: 24px 0 0;
+  padding: 0;
+  text-align: center;
+}
+
+.signup-page:has(.signup-account-stage) .login-content > .auth-switch a {
+  color: #8e60ff;
+  font-weight: 650;
 }
 
 .signup-account-stage .signup-selector {
@@ -1817,8 +2025,7 @@
 
 .signin-header {
   align-items: center;
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  display: flex;
   min-height: 60px;
 }
 
@@ -1835,9 +2042,9 @@
 
 .signin-marketplace-logo {
   display: block;
-  grid-column: 2;
   height: auto;
-  width: clamp(160px, 20vw, 210px);
+  margin: 0 auto 28px;
+  width: 210px;
 }
 
 .sign-in-page .login-content {
@@ -1884,11 +2091,11 @@
 
 .signin-method-toggle {
   align-self: center;
-  background: #dedede;
+  background: #f0e9ff;
   border-radius: 99px;
   display: flex;
   height: 36px;
-  padding: 3px;
+  width: 100%;
 }
 
 .signin-method-toggle button {
@@ -1896,17 +2103,22 @@
   background: transparent;
   border: 0;
   border-radius: 99px;
-  color: #fff;
+  color: #8e60ff;
   cursor: pointer;
   display: inline-flex;
-  height: 30px;
+  flex: 1;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  gap: 8px;
+  height: 36px;
   justify-content: center;
   transition: background 150ms ease;
-  width: 48px;
 }
 
 .signin-method-toggle button.is-active {
   background: #8e60ff;
+  color: #fff;
 }
 
 .signin-email-stage,
@@ -2055,6 +2267,7 @@
 .signin-social-options {
   display: grid;
   gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .signin-social-button {
@@ -2065,11 +2278,12 @@
   color: #111;
   cursor: pointer;
   display: flex;
-  font-size: 14px;
+  font-size: 11px;
   font-weight: 650;
-  gap: 10px;
+  gap: 5px;
   height: 46px;
   justify-content: center;
+  padding: 0 5px;
 }
 
 .signin-social-button:hover {
@@ -2131,13 +2345,189 @@
 .sign-in-page .auth-switch {
   color: #171717;
   font-size: 14px;
-  margin-top: 18px;
+  margin: 0;
   text-align: center;
 }
 
 .sign-in-page .auth-switch a {
   color: #8e60ff;
   font-weight: 650;
+}
+
+.password-reset-page {
+  background: #fff;
+  color: #141216;
+  flex: 1;
+  min-height: 100svh;
+}
+
+.password-reset-content {
+  margin: 0 auto;
+  max-width: 430px;
+  padding: max(24px, env(safe-area-inset-top)) 28px max(28px, env(safe-area-inset-bottom));
+}
+
+.password-reset-header {
+  align-items: center;
+  display: grid;
+  grid-template-columns: 40px 1fr 40px;
+}
+
+.password-reset-logo {
+  height: auto;
+  justify-self: center;
+  width: 190px;
+}
+
+.password-reset-art {
+  display: block;
+  height: auto;
+  margin: 8px auto 10px;
+  max-width: 100%;
+  width: 280px;
+}
+
+.password-reset-content h1 {
+  color: #111;
+  font-size: 30px;
+  font-weight: 750;
+  letter-spacing: -0.8px;
+  line-height: 1.15;
+  margin: 0;
+  text-align: center;
+}
+
+.password-reset-content h1 span {
+  color: #8e60ff;
+}
+
+.password-reset-description {
+  color: #737373;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 5px 0 28px;
+  text-align: center;
+}
+
+.password-reset-content .update-password-form,
+.password-reset-content .forgot-password-form {
+  display: grid;
+  gap: 12px;
+}
+
+.update-password-form .field,
+.forgot-password-form .field {
+  display: grid;
+  gap: 5px;
+}
+
+.update-password-form .field label,
+.forgot-password-form .field label {
+  color: #111;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.reset-password-requirements {
+  display: grid;
+  gap: 7px;
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0 4px;
+}
+
+.reset-password-requirements li {
+  align-items: center;
+  color: #333;
+  display: flex;
+  font-size: 14px;
+  gap: 8px;
+}
+
+.reset-password-requirements li svg {
+  background: #ded8ea;
+  border-radius: 50%;
+  color: #fff;
+  flex: 0 0 auto;
+  height: 20px;
+  padding: 3px;
+  width: 20px;
+}
+
+.reset-password-requirements li.is-satisfied svg,
+.reset-password-requirements li.is-optional svg {
+  background: #8e60ff;
+}
+
+.password-reset-content .update-password-form .auth-submit,
+.password-reset-content .forgot-password-form .auth-submit {
+  background: #8e60ff;
+  border: 0;
+  border-radius: 14px;
+  font-size: 18px;
+  font-weight: 700;
+  margin-top: 20px;
+  min-height: 46px;
+}
+
+.password-reset-content .update-password-form .auth-submit:hover,
+.password-reset-content .forgot-password-form .auth-submit:hover {
+  background: #7950d9;
+}
+
+.forgot-password-page .password-reset-description {
+  margin-bottom: 40px;
+}
+
+.forgot-password-form .form-message {
+  margin: 0;
+}
+
+.password-recovery-divider {
+  align-items: center;
+  display: flex;
+  font-size: 14px;
+  font-weight: 700;
+  gap: 7px;
+  margin: 28px 8px 0;
+}
+
+.password-recovery-divider::before,
+.password-recovery-divider::after {
+  background: #d3c5ff;
+  content: "";
+  flex: 1;
+  height: 1px;
+}
+
+.password-recovery-divider::after {
+  background: #d1d1d1;
+}
+
+.password-reset-back {
+  align-items: center;
+  background: #faf7ff;
+  border: 1px solid #d5c1ff;
+  border-radius: 14px;
+  color: #8e60ff;
+  display: flex;
+  font-size: 18px;
+  justify-content: center;
+  margin-top: 20px;
+  min-height: 46px;
+}
+
+.password-reset-support {
+  font-size: 14px;
+  margin: 12px 0 0;
+  text-align: center;
+}
+
+.password-reset-support a {
+  color: #8e60ff;
+  font-weight: 650;
+  margin-left: 6px;
+  text-decoration: underline;
 }
 
 @media (max-width: 760px) {
@@ -2155,7 +2545,7 @@
   }
 
   .signin-marketplace-logo {
-    width: clamp(165px, 44vw, 190px);
+    width: 210px;
   }
 
   .sign-in-page .login-content {
@@ -2221,6 +2611,385 @@
   }
 
   .signin-marketplace-logo {
-    width: 175px;
+    max-width: 70%;
+  }
+}
+
+.signup-verification-page,
+.signup-success-page {
+  background: #fff;
+  color: #141216;
+  min-height: 100svh;
+}
+
+.signup-verify-flow,
+.signup-success-flow {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  margin-inline: auto;
+  max-width: 500px;
+  min-height: 100svh;
+  padding: max(18px, env(safe-area-inset-top)) 28px max(24px, env(safe-area-inset-bottom));
+  width: 100%;
+}
+
+.signup-verify-header,
+.signup-success-header {
+  align-items: center;
+  display: grid;
+  grid-template-columns: 48px 1fr 48px;
+  justify-items: center;
+  min-height: 64px;
+}
+
+.signup-verify-back,
+.signup-success-back {
+  align-items: center;
+  background: #eee6ff;
+  border-radius: 50%;
+  color: #8e60ff;
+  display: inline-flex;
+  grid-column: 1;
+  grid-row: 1;
+  height: 40px;
+  justify-content: center;
+  justify-self: start;
+  width: 40px;
+}
+
+.signup-success-back {
+  font-size: 30px;
+  line-height: 1;
+}
+
+.signup-verify-logo,
+.signup-success-logo {
+  display: block;
+  grid-column: 2;
+  grid-row: 1;
+  height: auto;
+  width: clamp(180px, 52vw, 220px);
+}
+
+.signup-verify-progress {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  list-style: none;
+  margin: 18px 0 24px;
+  padding: 0;
+}
+
+.signup-verify-progress li {
+  align-items: center;
+  color: #777;
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+  gap: 7px;
+  min-width: 0;
+  position: relative;
+  text-align: center;
+}
+
+.signup-verify-progress li::before {
+  background: #8e60ff;
+  content: "";
+  height: 2px;
+  left: -50%;
+  position: absolute;
+  top: 19px;
+  width: 100%;
+}
+
+.signup-verify-progress li:first-child::before {
+  display: none;
+}
+
+.signup-verify-progress-marker {
+  align-items: center;
+  background: #777;
+  border: 1px solid #777;
+  border-radius: 50%;
+  color: #fff;
+  display: inline-flex;
+  font-size: 15px;
+  font-weight: 700;
+  height: 40px;
+  justify-content: center;
+  position: relative;
+  width: 40px;
+  z-index: 1;
+}
+
+.signup-verify-progress li.is-current {
+  color: #8e60ff;
+  font-weight: 700;
+}
+
+.signup-verify-progress li.is-current .signup-verify-progress-marker {
+  background: #8e60ff;
+  border-color: #8e60ff;
+}
+
+.signup-verify-art {
+  align-items: center;
+  align-self: center;
+  background: #eee5ff;
+  border-radius: 48% 52% 47% 53%;
+  color: #8e60ff;
+  display: flex;
+  height: 138px;
+  justify-content: center;
+  margin: 0 auto 18px;
+  position: relative;
+  width: min(100%, 260px);
+}
+
+.signup-verify-phone {
+  align-items: center;
+  background: #fff;
+  border: 5px solid #8e60ff;
+  border-radius: 19px;
+  box-shadow: 0 6px 12px rgb(65 31 130 / 15%);
+  display: inline-flex;
+  height: 108px;
+  justify-content: center;
+  transform: rotate(-7deg);
+  width: 76px;
+}
+
+.signup-verify-shield {
+  align-items: center;
+  background: #8e60ff;
+  border: 5px solid #eee5ff;
+  border-radius: 50%;
+  bottom: 13px;
+  color: #fff;
+  display: inline-flex;
+  height: 62px;
+  justify-content: center;
+  position: absolute;
+  right: 24px;
+  width: 62px;
+}
+
+.signup-verify-title,
+.signup-success-content h1 {
+  color: #111116;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: clamp(26px, 7vw, 32px);
+  font-weight: 750;
+  letter-spacing: -0.8px;
+  line-height: 1.15;
+  margin: 0;
+  text-align: center;
+}
+
+.signup-verify-title span,
+.signup-success-content h1 span {
+  color: #8e60ff;
+}
+
+.signup-verify-description,
+.signup-verify-instruction {
+  color: #777;
+  font-size: 14px;
+  font-weight: 550;
+  line-height: 1.3;
+  margin: 4px auto 0;
+  max-width: 360px;
+  text-align: center;
+}
+
+.signup-verify-description strong {
+  color: #19171c;
+  white-space: nowrap;
+}
+
+.signup-verify-instruction {
+  margin-top: 14px;
+}
+
+.signup-verify-form {
+  display: grid;
+  gap: 18px;
+  margin-top: 24px;
+}
+
+.signup-verify-otp-inputs {
+  display: flex;
+  gap: clamp(8px, 2vw, 14px);
+  justify-content: space-between;
+}
+
+.signup-verify-otp-digit {
+  background: #fff;
+  border: 1px solid #d1d1d1;
+  border-radius: 11px;
+  color: #17141a;
+  font-size: 22px;
+  font-weight: 650;
+  height: 48px;
+  min-width: 0;
+  padding: 0;
+  text-align: center;
+  width: min(48px, 13vw);
+}
+
+.signup-verify-otp-digit:focus {
+  border-color: #8e60ff;
+  outline: 2px solid rgb(142 96 255 / 18%);
+}
+
+.signup-verify-submit {
+  background: #8e60ff;
+  border: 0;
+  border-radius: 13px;
+  font-size: 18px;
+  font-weight: 700;
+  min-height: 48px;
+}
+
+.signup-verify-submit:hover {
+  background: #7950d9;
+}
+
+.signup-verify-resend {
+  align-items: center;
+  color: #777;
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 13px;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.signup-verify-flow .form-message {
+  margin: 0;
+  text-align: center;
+}
+
+.signup-success-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  padding: 48px 0;
+}
+
+.signup-success-content h1 {
+  font-size: clamp(27px, 7vw, 32px);
+}
+
+.signup-success-content > p:first-of-type {
+  color: #777;
+  font-size: 14px;
+  font-weight: 550;
+  line-height: 1.25;
+  margin: 26px 0 28px;
+  text-align: center;
+}
+
+.signup-success-customer {
+  align-items: center;
+  background: #f1e9ff;
+  border-radius: 18px;
+  display: flex;
+  gap: 15px;
+  min-height: 78px;
+  padding: 12px 18px;
+}
+
+.signup-success-avatar {
+  align-items: center;
+  background: #dfd0ff;
+  border-radius: 50%;
+  color: #8e60ff;
+  display: inline-flex;
+  flex: 0 0 50px;
+  height: 50px;
+  justify-content: center;
+}
+
+.signup-success-divider {
+  align-self: stretch;
+  background: #c8b5ed;
+  width: 1px;
+}
+
+.signup-success-customer-copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.signup-success-customer-copy strong {
+  color: #19171c;
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+
+.signup-success-customer-copy > span {
+  color: #777;
+  font-size: 12px;
+}
+
+.signup-success-active {
+  align-items: center;
+  background: #e4d7ff;
+  border-radius: 999px;
+  color: #8e60ff;
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-size: 11px;
+  font-weight: 700;
+  gap: 3px;
+  padding: 3px 7px;
+}
+
+.signup-success-dashboard,
+.signup-success-shopping {
+  align-items: center;
+  border: 1px solid #8e60ff;
+  border-radius: 14px;
+  display: flex;
+  font-size: 18px;
+  font-weight: 700;
+  justify-content: center;
+  min-height: 46px;
+  text-align: center;
+}
+
+.signup-success-dashboard {
+  background: #8e60ff;
+  color: #fff;
+  margin-top: 34px;
+}
+
+.signup-success-dashboard:hover {
+  background: #7950d9;
+}
+
+.signup-success-shopping {
+  color: #8e60ff;
+  margin-top: 12px;
+}
+
+.signup-success-note {
+  color: #8e60ff;
+  font-size: 12px;
+  font-weight: 600;
+  margin: 12px 0 0;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .signup-verify-flow,
+  .signup-success-flow {
+    padding-inline: clamp(24px, 11vw, 48px);
   }
 }

@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { getSupabaseEnv } from "./env";
+import { authCookieOptions, sessionOnlyCookie } from "./session-cookies";
 
 export async function createClient() {
   const cookieStore = await cookies();
@@ -13,7 +14,7 @@ export async function createClient() {
       },
       setAll(cookiesToSet) {
         cookiesToSet.forEach(({ name, value, options }) => {
-          cookieStore.set(name, value, options);
+          cookieStore.set(name, value, authCookieOptions(options, cookieStore.get(sessionOnlyCookie)?.value === "true"));
         });
       },
     },

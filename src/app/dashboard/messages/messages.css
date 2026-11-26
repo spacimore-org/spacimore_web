@@ -1,0 +1,91 @@
+.messages-page {
+  max-width: 1200px;
+}
+
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-header h1 {
+  font-size: 28px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 8px 0;
+}
+
+.page-header p {
+  color: #999;
+  font-size: 14px;
+  margin: 0;
+}
+
+.messages-container {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.empty-state p {
+  color: #999;
+  font-size: 14px;
+  margin: 0 0 8px 0;
+}
+
+.empty-description {
+  margin-bottom: 20px;
+}
+
+.btn {
+  display: inline-block;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: #2e7d32;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #1b5e20;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .page-header h1 {
+    font-size: 22px;
+  }
+
+  .messages-container {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .messages-container {
+    padding: 12px;
+  }
+
+  .empty-state {
+    padding: 32px 16px;
+  }
+}

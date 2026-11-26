@@ -22,30 +22,20 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           <Link aria-label="Back to home" className="signin-back" href="/">
             <ChevronLeft aria-hidden="true" size={23} />
           </Link>
-          <Image
-            alt="MarketPlace"
-            className="signin-marketplace-logo"
-            height={110}
-            priority
-            src="/header.png"
-            width={344}
-          />
-          <span aria-hidden="true" />
         </header>
 
         <div className="login-content">
           <Image
-            alt=""
-            aria-hidden="true"
-            className="signin-lock-art"
-            height={171}
+            alt="MarketPlace: Shop, Sell, Grow"
+            className="signin-marketplace-logo"
+            height={363}
             priority
-            src="/padlock.png"
-            width={298}
+            src="/mpicon.png"
+            width={480}
           />
           <h1 id="login-title"><span>Welcome</span> Back</h1>
           <p className="login-description">
-            Login in to your account to continue shopping, tracking orders and more
+            Sign in to access your account<br /> and manage your store
           </p>
           {error === "callback" && (
             <p className="form-message form-message-error" role="alert">
@@ -53,9 +43,6 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             </p>
           )}
           <SignInForm />
-          <p className="auth-switch">
-            New around here? <Link href="/signup">Create an account</Link>
-          </p>
         </div>
 
         <p className="login-copyright">© SPACIMORE</p>
