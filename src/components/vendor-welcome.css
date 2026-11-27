@@ -1,0 +1,293 @@
+.vendor-welcome-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 100vh;
+  padding: 24px;
+  background: linear-gradient(135deg, #f3e5f5 0%, #ede7f6 100%);
+  position: relative;
+}
+
+.vendor-welcome-back {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: rgba(124, 58, 237, 0.2);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #7c3aed;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.vendor-welcome-back:hover {
+  background: rgba(124, 58, 237, 0.3);
+  transform: scale(1.05);
+}
+
+.vendor-welcome-header {
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.vendor-welcome-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.vendor-welcome-logo img {
+  width: auto;
+  height: auto;
+  max-width: 300px;
+  display: block;
+}
+
+.vendor-welcome-content {
+  background: white;
+  border-radius: 20px;
+  padding: 40px 32px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  text-align: center;
+}
+
+.vendor-welcome-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 16px 0;
+  line-height: 1.2;
+}
+
+.vendor-welcome-highlight {
+  color: #7c3aed;
+}
+
+.vendor-welcome-subtitle {
+  font-size: 16px;
+  color: #6366f1;
+  margin: 0 0 32px 0;
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+.vendor-welcome-benefits {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.benefit-card {
+  background: #f8f4ff;
+  border-radius: 12px;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid #ede7f6;
+  transition: all 0.2s ease;
+}
+
+.benefit-card:hover {
+  background: #ede7f6;
+  border-color: #d8d0f0;
+}
+
+.benefit-icon {
+  font-size: 32px;
+}
+
+.benefit-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6366f1;
+  line-height: 1.4;
+}
+
+.vendor-welcome-requirements {
+  background: #f8f4ff;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  text-align: left;
+  border: 1px solid #ede7f6;
+}
+
+.vendor-welcome-requirements h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 16px 0;
+}
+
+.requirements-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.requirements-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+  color: #6366f1;
+  font-weight: 500;
+}
+
+.requirements-list svg {
+  color: #7c3aed;
+  flex-shrink: 0;
+}
+
+.vendor-welcome-continue-btn {
+  width: 100%;
+  padding: 16px 24px;
+  background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 16px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+}
+
+.vendor-welcome-continue-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
+}
+
+.vendor-welcome-continue-btn:active {
+  transform: translateY(0);
+}
+
+.vendor-welcome-cancel-btn {
+  background: transparent;
+  color: #7c3aed;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: underline;
+}
+
+.vendor-welcome-cancel-btn:hover {
+  color: #6366f1;
+  text-decoration-thickness: 2px;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .vendor-welcome-container {
+    padding: 16px;
+  }
+
+  .vendor-welcome-content {
+    padding: 24px 20px;
+  }
+
+  .vendor-welcome-title {
+    font-size: 28px;
+  }
+
+  .vendor-welcome-benefits {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .benefit-card {
+    padding: 16px 12px;
+  }
+
+  .vendor-welcome-logo {
+    margin-bottom: 20px;
+  }
+
+  .vendor-welcome-logo img {
+    max-width: 250px;
+  }
+}
+
+@media (max-width: 480px) {
+  .vendor-welcome-back {
+    width: 44px;
+    height: 44px;
+    top: 16px;
+    left: 16px;
+  }
+
+  .vendor-welcome-content {
+    padding: 20px 16px;
+    border-radius: 16px;
+  }
+
+  .vendor-welcome-title {
+    font-size: 24px;
+    margin-bottom: 12px;
+  }
+
+  .vendor-welcome-subtitle {
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+
+  .vendor-welcome-benefits {
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .benefit-card {
+    padding: 14px 10px;
+  }
+
+  .benefit-title {
+    font-size: 11px;
+  }
+
+  .vendor-welcome-requirements {
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+
+  .vendor-welcome-requirements h2 {
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+
+  .requirements-list li {
+    gap: 10px;
+    font-size: 14px;
+  }
+
+  .vendor-welcome-continue-btn {
+    padding: 14px 20px;
+    font-size: 15px;
+    margin-bottom: 12px;
+  }
+
+  .vendor-welcome-cancel-btn {
+    font-size: 14px;
+  }
+}
+

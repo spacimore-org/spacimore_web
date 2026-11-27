@@ -12,21 +12,24 @@ export default async function SignupPage({
 }) {
   const { role } = await searchParams;
   const initialRole = role === "buyer" || role === "seller" ? role : undefined;
+  const isVendorSignup = initialRole === "seller";
 
   return (
     <main className="login-page signup-page">
       <section className="login-panel" aria-labelledby="signup-title">
-        <BrandLink className="login-brand" />
+        {!isVendorSignup && <BrandLink className="login-brand" />}
 
         <div className="login-content">
-          <span className="login-eyebrow">A GOOD PLACE TO START</span>
+          {!isVendorSignup && <span className="login-eyebrow">A GOOD PLACE TO START</span>}
           <SignUpForm initialRole={initialRole} />
-          <p className="auth-switch">
-            Already have an account? <Link href="/login">Log in</Link>
-          </p>
+          {!isVendorSignup && (
+            <p className="auth-switch">
+              Already have an account? <Link href="/login">Log in</Link>
+            </p>
+          )}
         </div>
 
-        <p className="login-copyright">© SPACIMORE</p>
+        {!isVendorSignup && <p className="login-copyright">© SPACIMORE</p>}
       </section>
 
       <aside className="login-story" aria-label="A quieter kind of progress">

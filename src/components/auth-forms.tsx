@@ -26,6 +26,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { BrandLink } from "@/components/brand-link";
+import { VendorWelcome } from "@/components/vendor-welcome";
+import { VendorSignupForm } from "@/components/vendor-signup-form";
 import { getResetPasswordRequirements } from "@/lib/reset-password";
 import {
   requestPasswordResetAction,
@@ -329,8 +331,8 @@ export function SignUpForm({ initialRole }: { initialRole?: "buyer" | "seller" }
   const [selectedAccount, setSelectedAccount] = useState<AccountType>("customer");
   const [selectedOption, setSelectedOption] = useState<AccountOption | "">(initialRole ?? "");
   const [step, setStep] = useState<
-    "account" | "option" | "credentials" | "sellerType" | "sellerDetails"
-  >(initialRole === "seller" ? "sellerType" : initialRole ? "credentials" : "account");
+    "account" | "option" | "credentials" | "vendorWelcome" | "sellerType" | "sellerDetails"
+  >(initialRole === "seller" ? "vendorWelcome" : initialRole ? "credentials" : "account");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [phoneCountryCode, setPhoneCountryCode] = useState("+234");
   const [buyerSignupStage, setBuyerSignupStage] = useState(1);
@@ -791,20 +793,26 @@ export function SignUpForm({ initialRole }: { initialRole?: "buyer" | "seller" }
           </div>
         ) : (
         <div className="signup-credentials-stage">
+          {isVendorSignup ? (
+            <VendorSignupForm
+              isPending={pending}
+              error={state.error}
+            />
+          ) : (
+            <>
           <form
-            action={isVendorSignup ? undefined : action}
+            action={action}
             className={`auth-form signup-credentials${isMarketplaceRoleSignup ? " signup-buyer-credentials" : ""}`}
-            onSubmit={isVendorSignup ? continueVendorCredentials : undefined}
           >
             <input type="hidden" name="accountType" value={selectedAccount} />
             <input type="hidden" name="accountOption" value={selectedOption} />
             <button
               className="signup-back"
-              onClick={() => setStep(isVendorSignup ? "sellerType" : options ? "option" : "account")}
+              onClick={() => setStep(options ? "option" : "account")}
               type="button"
             >
               <ChevronLeft aria-hidden="true" size={16} />
-              {isVendorSignup ? "Change seller category" : options ? "Change Selection" : "Go Back"}
+              {options ? "Change Selection" : "Go Back"}
             </button>
             {isMarketplaceRoleSignup && (
               <div className="signup-name-fields">
@@ -887,7 +895,7 @@ export function SignUpForm({ initialRole }: { initialRole?: "buyer" | "seller" }
             >
               {pending
                 ? "Creating account..."
-                : isBuyerSignup || isVendorSignup
+                : isBuyerSignup
                   ? "Continue"
                   : "Create account"}
               <ArrowRight aria-hidden="true" size={16} />
@@ -909,8 +917,18 @@ export function SignUpForm({ initialRole }: { initialRole?: "buyer" | "seller" }
               <FormFeedback state={socialState} />
             </div>
           )}
+            </>
+          )}
         </div>
         )
+      ) : step === "vendorWelcome" ? (
+        <VendorWelcome
+          onContinue={() => setStep("sellerType")}
+          onCancel={() => {
+            setSelectedOption("");
+            setStep("option");
+          }}
+        />
       ) : step === "sellerType" ? (
         <div aria-label="Choose your vendor seller category" className="seller-type-selector" role="group">
           {([
